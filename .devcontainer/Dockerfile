@@ -17,7 +17,12 @@ RUN apt update && apt install -y \
     gnupg \
     software-properties-common \
     tmux \
+    ca-certificates \
+    lsb-release \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Docker (for Docker-in-Docker support)
+RUN curl -fsSL https://get.docker.com | sh
 
 # Install Terraform
 RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
@@ -50,9 +55,16 @@ ENV EDITOR="nvim"
 # Run Neovim once to install plugins
 RUN nvim --headless "+Lazy! sync" +qa
 
+# Install Lazygit
+RUN LAZYGIT_VERSION=$(curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep -Po '"tag_name": "\K.*?(?=")') \
+    && curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_$(uname -s)_$(uname -m).tar.gz" \
+    && tar -xzf lazygit.tar.gz lazygit \
+    && sudo install lazygit /usr/local/bin \
+    && rm -rf lazygit lazygit.tar.gz
+
 # Set the working directory inside the container
 WORKDIR /workspace
 RUN mkdir -p /workspace
 
-# Default command when container starts
-CMD ["zsh"]
+# Start Docker daemon inside the container
+CMD ["sh", "-c", "dockerd-entrypoint.sh & zsh"]
