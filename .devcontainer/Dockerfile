@@ -1,70 +1,23 @@
-# Base image with Ubuntu and minimal dependencies
-FROM ubuntu:latest
+# Use the official Node.js image
+FROM node:20
 
-# Set non-interactive mode to prevent installation prompts
-ENV DEBIAN_FRONTEND=noninteractive
+# Set the working directory
+WORKDIR /workspace
 
-# Update system and install necessary packages
-RUN apt update && apt install -y \
+# Install useful tools and Terraform
+RUN apt-get update && apt-get install -y \
     curl \
     git \
+    wget \
     unzip \
-    ripgrep \
-    neovim \
-    zsh \
-    fzf \
-    build-essential \
-    gnupg \
-    software-properties-common \
-    tmux \
-    ca-certificates \
-    lsb-release \
+    && wget https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip \
+    && unzip terraform_1.6.0_linux_amd64.zip \
+    && mv terraform /usr/local/bin/ \
+    && rm terraform_1.6.0_linux_amd64.zip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Docker (for Docker-in-Docker support)
-RUN curl -fsSL https://get.docker.com | sh
+# Install TypeScript, CDKTF, and Azure provider globally
+RUN npm install -g typescript cdktf-cli @cdktf/provider-azurerm
 
-# Install Terraform
-RUN curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list \
-    && apt update && apt install -y terraform
-
-# Verify Terraform installation
-RUN terraform --version
-
-# Install Oh My Zsh and plugins
-RUN git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh \
-    && git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions \
-    && git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting \
-    && git clone https://github.com/zsh-users/zsh-completions ~/.oh-my-zsh/custom/plugins/zsh-completions
-
-# Clone your dotfiles (includes .zshrc and .tmux.conf)
-RUN git clone https://github.com/sunnybharne/dotfiles.git ~/dotfiles \
-    && ln -sf ~/dotfiles/.zshrc ~/.zshrc \
-    && ln -sf ~/dotfiles/.tmux.conf ~/.tmux.conf
-
-# Set Zsh as the default shell
-RUN chsh -s $(which zsh)
-
-# Clone your Neovim configuration
-RUN git clone https://github.com/sunnybharne/nvim.git /root/.config/nvim
-
-# Set Neovim as the default editor
-ENV EDITOR="nvim"
-
-# Run Neovim once to install plugins
-RUN nvim --headless "+Lazy! sync" +qa
-
-# Install Lazygit
-RUN LAZYGIT_VERSION=$(curl -s https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep -Po '"tag_name": "\K.*?(?=")') \
-    && curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_$(uname -s)_$(uname -m).tar.gz" \
-    && tar -xzf lazygit.tar.gz lazygit \
-    && sudo install lazygit /usr/local/bin \
-    && rm -rf lazygit lazygit.tar.gz
-
-# Set the working directory inside the container
-WORKDIR /workspace
-RUN mkdir -p /workspace
-
-# Start Docker daemon inside the container
-CMD ["sh", "-c", "dockerd-entrypoint.sh & zsh"]
+# Keep the container running
+CMD ["sleep", "infinity"]

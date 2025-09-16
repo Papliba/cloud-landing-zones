@@ -1,6 +1,13 @@
 {
-  "name": "Dev Container",
+  "name": "Node.js Dev Container",
   "build": {
     "dockerfile": "Dockerfile"
-  }
+  },
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash"
+  },
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode"
+  ]
 }
