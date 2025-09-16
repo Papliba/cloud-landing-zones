@@ -11,6 +11,10 @@ cdktf init --template=typescript --local --providers=azurerm # local for local s
 npm install @cdktf/provider-azurerm # or cdktf provider add azurerm
 # "terraformProviders": ["azurerm@~> 3.0"] , add the provider to the cdktf.json file 
 cdktf get # to generate the provider
+```
+
+## Important commands
+```bash
 cdktf plan # what if
 cdktf deploy 
 cdktf destroy
@@ -18,10 +22,18 @@ cdktf list # to list the stacks from the state file
 cdktf output # to list the outputs from the state file
 ```
 
-- cdktf.json - CDKTF configuration
-  - package.json - Node.js dependencies
-  - src/ folder - Where your infrastructure code goes
-  - cdktf.out/ folder - Generated Terraform files (don't edit these)
-- Locking
-  - Delete the lock file if it gets locked
-  - Or terraform force-unlock Id-of-the-lock
+## Important files
+```bash
+cdktf.json # CDKTF configuration
+package.json # Node.js dependencies
+src/ folder # Where your infrastructure code goes
+cdktf.out # folder - Generated Terraform files
+.terraform/ folder (for providers)
+terraform.tfstate file (for state)
+```
+
+## If you get locked
+```bash
+- Delete the lock file if it gets locked
+- Or terraform force-unlock Id-of-the-lock
+```
