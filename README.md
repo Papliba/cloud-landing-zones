@@ -32,8 +32,15 @@ cdktf.out # folder - Generated Terraform files
 terraform.tfstate file (for state)
 ```
 
-## If you get locked
+## If you get locked up
 ```bash
 - Delete the lock file if it gets locked
 - Or terraform force-unlock Id-of-the-lock
 ```
+
+> [!NOTE]
+  [CDKTF aws tutorial : not completed](https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-build), [CDKTF functions : not completed](https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-assets-stacks-lambda), [Deploy application : not completed](https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-applications)
+
+> [!NOTE]
+[continue from here](https://developer.hashicorp.com/terraform/cdktf)
+
