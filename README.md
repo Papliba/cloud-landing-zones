@@ -3,7 +3,8 @@
 > [!NOTE]
 [cdktf](https://developer.hashicorp.com/terraform/cdktf)
 
-## Prerequisites
+## Getting started
+### Prerequisites
 ```bash
 brew install terraform
 npm install -g cdktf-cli
@@ -13,7 +14,7 @@ npm install @cdktf/provider-azurerm # or cdktf provider add azurerm
 cdktf get # to generate the provider
 ```
 
-## Important commands
+### Important commands
 ```bash
 cdktf plan # what if
 cdktf deploy 
@@ -22,7 +23,7 @@ cdktf list # to list the stacks from the state file
 cdktf output # to list the outputs from the state file
 ```
 
-## Important files
+### Important files
 ```bash
 cdktf.json # CDKTF configuration
 package.json # Node.js dependencies
@@ -32,11 +33,13 @@ cdktf.out # folder - Generated Terraform files
 terraform.tfstate file (for state)
 ```
 
-## If you get locked up
+### If you get locked up
 ```bash
 - Delete the lock file if it gets locked
 - Or terraform force-unlock Id-of-the-lock
 ```
+
+## Architecture
 
 > [!NOTE]
   [CDKTF aws tutorial : not completed](https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-build), [CDKTF functions : not completed](https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-assets-stacks-lambda), [Deploy application : not completed](https://developer.hashicorp.com/terraform/tutorials/cdktf/cdktf-applications)
