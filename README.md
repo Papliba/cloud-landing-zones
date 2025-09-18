@@ -2,6 +2,16 @@
 
 A TypeScript-based infrastructure as code project using CDKTF (Cloud Development Kit for Terraform) to manage cloud landing zones with Azure provider support.
 
+## 📖 Table of Contents
+
+| Documentation | Description | Link |
+|---------------|-------------|------|
+| **CDKTF Guide** | Comprehensive CDKTF setup, concepts, and best practices | [📚 docs/cdktf.md](docs/cdktf.md) |
+| **Bicep Guide** | Azure Bicep deployment strategies and commands | [📚 docs/bicep.md](docs/bicep.md) |
+| **Terraform Guide** | Traditional Terraform workflows and commands | [📚 docs/tf.md](docs/tf.md) |
+| **Certification** | Terraform certification resources and links | [📚 docs/certs/cert.md](docs/certs/cert.md) |
+| **Tutorials** | Additional learning resources and community links | [📚 tutorials.md](tutorials.md) |
+
 ## 🏗️ Overview
 
 This project provides a foundation for building and managing cloud landing zones using modern infrastructure as code practices. It leverages CDKTF to create type-safe, testable infrastructure definitions that can be deployed across different cloud environments.
