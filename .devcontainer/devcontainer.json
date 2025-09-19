@@ -3,11 +3,17 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "settings": {
-    "terminal.integrated.defaultProfile.linux": "bash"
-  },
-  "extensions": [
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode"
-  ]
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "ms-azuretools.vscode-bicep",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "pomdtr.excalidraw-editor"
+      ]
+    }
+  }
 }
