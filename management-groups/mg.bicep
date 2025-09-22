@@ -21,6 +21,18 @@ param sandbox string = 'sandbox'
 @description('The name of the platform management group.')
 param platform string = 'platform'
 
+@description('The name of the security management group.')
+param security string = 'security'
+
+@description('The name of the management management group.')
+param management string = 'management'
+
+@description('The name of the identity management group.')
+param identity string = 'identity'
+
+@description('The name of the connectivity management group.')
+param connectivity string = 'connectivity'
+
 @description('The name of the root management group.')
 resource rootMg 'Microsoft.Management/managementGroups@2023-04-01' = {
   scope: tenant()
@@ -114,6 +126,62 @@ resource platformMg 'Microsoft.Management/managementGroups@2023-04-01' = {
   }
 }
 
+@description('The name of the security management group.')
+resource securityMg 'Microsoft.Management/managementGroups@2023-04-01' = {
+  scope: tenant()
+  name: security
+  properties: { 
+    details: {
+      parent: {
+        id: platformMg.id
+      }
+    }
+    displayName: security
+  }
+}
+
+@description('The name of the management management group.')
+resource managementMg 'Microsoft.Management/managementGroups@2023-04-01' = {
+  scope: tenant()
+  name: management
+  properties: { 
+    details: {
+      parent: {
+        id: platformMg.id
+      }
+    }
+    displayName: management
+  }
+}
+
+@description('The name of the identity management group.')
+resource identityMg 'Microsoft.Management/managementGroups@2023-04-01' = {
+  scope: tenant()
+  name: identity
+  properties: { 
+    details: {
+      parent: {
+        id: platformMg.id
+      }
+    }
+    displayName: identity
+  }
+}
+
+@description('The name of the connectivity management group.')
+resource connectivityMg 'Microsoft.Management/managementGroups@2023-04-01' = {
+  scope: tenant()
+  name: connectivity
+  properties: { 
+    details: {
+      parent: {
+        id: platformMg.id
+      }
+    }
+    displayName: connectivity
+  }
+}
+
 @description('The name of the root management group.')
 output rootMgName string = rootMg.name
 
@@ -143,3 +211,39 @@ output platformMgName string = platformMg.name
 
 @description('The resource ID of the platform management group.')
 output platformMgId string = platformMg.id
+
+@description('The name of the security management group.')
+output securityMgName string = securityMg.name
+
+@description('The resource ID of the security management group.')
+output securityMgId string = securityMg.id
+
+@description('The name of the management management group.')
+output managementMgName string = managementMg.name
+
+@description('The resource ID of the management management group.')
+output managementMgId string = managementMg.id
+
+@description('The name of the identity management group.')
+output identityMgName string = identityMg.name
+
+@description('The resource ID of the identity management group.')
+output identityMgId string = identityMg.id
+
+@description('The name of the connectivity management group.')
+output connectivityMgName string = connectivityMg.name
+
+@description('The resource ID of the connectivity management group.')
+output connectivityMgId string = connectivityMg.id
+
+@description('The name of the corp zone management group.')
+output corpMgName string = corpMg.name
+
+@description('The resource ID of the corp zone management group.')
+output corpMgId string = corpMg.id
+
+@description('The name of the online zone management group.')
+output onlineMgName string = onlineMg.name
+
+@description('The resource ID of the online zone management group.')
+output onlineMgId string = onlineMg.id
