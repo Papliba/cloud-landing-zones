@@ -1,26 +1,26 @@
 targetScope = 'managementGroup'
 
 @description('The name of the management group.')
-param mgName string = 'testmgfromparam'
+param rootMgName string = 'papliba-bicep'
 
-@description('The Id of the parent management group.')
-param parentId string = 'papliba-hcl'
+// @description('The Id of the parent management group.')
+// param parentId string = 'papliba-hcl'
 
-resource parentManagementGroup 'Microsoft.Management/managementGroups@2021-04-01' existing = {
-  name: parentId
-  scope: tenant()
-}
+// resource parentManagementGroup 'Microsoft.Management/managementGroups@2021-04-01' existing = {
+//   name: parentId
+//   scope: tenant()
+// }
 
 resource mg 'Microsoft.Management/managementGroups@2023-04-01' = {
   scope: tenant()
-  name: mgName
-  properties: {
+  name: rootMgName
+  properties: { 
     // details: {
     //   parent: {
     //     id: parentManagementGroup.id
     //   }
     // }
-    displayName: mgName
+    displayName: rootMgName
   }
 }
 
