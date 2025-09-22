@@ -10,15 +10,21 @@
 
 ## Getting started
 ```bash
-az bicep install
+brew tap azure/bicep
+brew install bicep
 ```
 
-- Deployments 
+- Deployments cli 
 ```bash
 az deployment tenant create --location westus --template-file main.bicep/
 az deployment mg create --management-group-id mg-group-id --template-file main.bicep/
 az deployment sub create --location westus --template-file main.bicep/
 az deployment group create --resource-group myResourceGroup --template-file main.bicep/
+```
+
+- Deployments pwsh
+```bash
+New-AzManagementGroupDeployment -ManagementGroupId "mg-group-id" -Location "SwedenCentral" -TemplateFile "main.bicep"
 ```
 
 > [!NOTE]
