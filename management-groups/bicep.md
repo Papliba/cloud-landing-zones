@@ -2,13 +2,17 @@
 
 > [!NOTE]
 [Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/)
+[Api-Reference](https://learn.microsoft.com/en-us/azure/templates/)
 
-## Concept
+## Overview
+
+### Concept
 - Modules
 - What if
 - No state file management
 
-## Getting started
+### Getting started
+- Installation
 ```bash
 brew tap azure/bicep
 brew install bicep
@@ -28,4 +32,4 @@ New-AzManagementGroupDeployment -ManagementGroupId "mg-group-id" -Location "Swed
 ```
 
 > [!NOTE]
-[Continue from here](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep)
+[Continue from here](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep#about-the-language)
