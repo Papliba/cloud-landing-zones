@@ -5,7 +5,7 @@ TypeScript infrastructure as code using CDKTF for Azure cloud landing zones.
 ## Notes
 
 - [CDKTF](docs/cdktf.md)
-- [Bicep](management-groups/bicep.md)
+- [Bicep](docs/bicep.md)
 - [Terraform](docs/tf.md)
 
 ## Overview
