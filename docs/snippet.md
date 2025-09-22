@@ -1,0 +1,3 @@
+# Snippets
+## Management groups
+- mg
