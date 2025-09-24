@@ -3,17 +3,24 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "customizations": {
-    "vscode": {
-      "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash"
-      },
-      "extensions": [
-        "ms-azuretools.vscode-bicep",
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "pomdtr.excalidraw-editor"
-      ]
+  "workspaceFolder": "/workspace",
+  "remoteUser": "node",
+  "runArgs": ["--init"],
+  "shutdownAction": "stopContainer",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+  ],
+  "postCreateCommand": "npm install",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": "true",
+      "configureZshAsDefaultShell": "true",
+      "installOhMyZsh": "true",
+      "upgradePackages": "true"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest",
+      "ppa": "false"
     }
   }
 }
