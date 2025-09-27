@@ -1,0 +1,18 @@
+trigger:
+  branches:
+    include:
+    - main
+
+pool: 'selfhosted'
+
+stages:
+  - stage: MGStructure
+    displayName: 'MGStructure'
+    jobs:
+    - job: MGStructure
+      displayName: 'MGStructure'
+      steps:
+      - script: |
+          echo "MGStructure"
+        displayName: 'MGStructure'
+
