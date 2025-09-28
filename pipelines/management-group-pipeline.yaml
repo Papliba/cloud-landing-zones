@@ -3,16 +3,17 @@ trigger:
     include:
     - main
 
-pool: 'selfhosted'
+pool: #'selfhosted'
+  vmImage: ubuntu-latest
 
 stages:
-  - stage: MGStructure
-    displayName: 'MGStructure'
-    jobs:
-    - job: MGStructure
-      displayName: 'MGStructure'
-      steps:
-      - script: |
-          echo "MGStructure"
-        displayName: 'MGStructure'
-
+- stage: HelloStage
+  displayName: "Hello Stage"
+  jobs:
+  - job: HelloJob
+    displayName: "Hello Job"
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - script: echo "Hello World"
+      displayName: "Print Hello World"
