@@ -3,17 +3,14 @@ trigger:
     include:
     - main
 
-pool: #'selfhosted'
-  vmImage: ubuntu-latest
+pool: 'selfhosted'
 
 stages:
-- stage: HelloStage
-  displayName: "Hello Stage"
-  jobs:
-  - job: HelloJob
-    displayName: "Hello Job"
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-    - script: echo "Hello World"
-      displayName: "Print Hello World"
+  - stage: stage_name
+    displayName: some name
+    jobs:
+    - job: Job
+      displayName: some job name
+      steps:
+      - script: echo "Hello World"
+        displayName: "Print Hello World"
