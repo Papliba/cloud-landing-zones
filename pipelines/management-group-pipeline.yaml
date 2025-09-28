@@ -6,11 +6,11 @@ trigger:
 pool: 'selfhosted'
 
 stages:
-  - stage: stage_name
-    displayName: some name
+  - stage: mg_structure
+    displayName: mg_structure
     jobs:
-    - job: Job
-      displayName: some job name
-      steps:
+    - job: mg_create
+      displayName: mg_create
+      steps: 
       - script: echo "Hello World"
         displayName: "Print Hello World"
