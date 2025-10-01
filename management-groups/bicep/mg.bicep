@@ -4,34 +4,34 @@ targetScope = 'managementGroup'
 param root string = 'papliba-bicep'
 
 @description('The name of the landing zone management group.')
-param landingzones string = 'landing-zones'
+param landingzones string = 'landing-zones-bicep'
 
 @description('The name of the corp zone management group.')
-param corp string = 'corp'
+param corp string = 'corp-bicep'
 
 @description('The name of the online zone management group.')
-param online string = 'online'
+param online string = 'online-bicep'
 
 @description('The name of the decommisioned management group.')
-param decommisioned string = 'decommisioned'
+param decommisioned string = 'decommisioned-bicep'
 
 @description('The name of the sandbox management group.')
-param sandbox string = 'sandbox'
+param sandbox string = 'sandbox-bicep'
 
 @description('The name of the platform management group.')
-param platform string = 'platform'
+param platform string = 'platform-bicep'
 
 @description('The name of the security management group.')
-param security string = 'security'
+param security string = 'security-bicep'
 
 @description('The name of the management management group.')
-param management string = 'management'
+param management string = 'management-bicep'
 
 @description('The name of the identity management group.')
-param identity string = 'identity'
+param identity string = 'identity-bicep'
 
 @description('The name of the connectivity management group.')
-param connectivity string = 'connectivity'
+param connectivity string = 'connectivity-bicep'
 
 @description('The name of the root management group.')
 resource rootMg 'Microsoft.Management/managementGroups@2023-04-01' = {
