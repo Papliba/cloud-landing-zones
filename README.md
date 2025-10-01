@@ -81,6 +81,7 @@ cloud-landing-zones/
 
 ## Testing
 
+
 ```bash
 npm run test
 npm run test:watch
@@ -122,7 +123,7 @@ terraform force-unlock <lock-id>
 
 **Provider Caching**: Clear with `rm -rf .terraform/`
 
-## Contributing
+## contributing
 
 1. Fork repository
 2. Create feature branch
