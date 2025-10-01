@@ -4,7 +4,7 @@ resource "azapi_resource" "mg" {
   parent_id = "/" # This is scope: tenant() in bicep
   body = {
     properties = {
-      displayName = "papliba-tf"
+      displayName = var.mg
     }
   }
 }
@@ -17,11 +17,11 @@ resource "azapi_resource" "testmg" {
     properties = {
       details = {
         parent = {
-          # id = "/providers/Microsoft.Management/managementGroups/papliba-tf" (also possible)
+          # id = "/providers/Microsoft.Management/managementGroups/papliba-tf" (also works)
           id = azapi_resource.mg.id
         }
       }
-      displayName = "landing-zones"
+      displayName = var.landing_zones
     }
   }
 }
