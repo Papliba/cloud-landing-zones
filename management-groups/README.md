@@ -31,5 +31,8 @@ az deployment group create --resource-group myResourceGroup --template-file main
 New-AzManagementGroupDeployment -ManagementGroupId "mg-group-id" -Location "SwedenCentral" -TemplateFile "main.bicep"
 ```
 
+> [!IMP] 
+> mg name can be duplicated but not mg id
+
 > [!NOTE]
-[Continue from here](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep#about-the-language)
+> [Continue from here](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep#about-the-language)
