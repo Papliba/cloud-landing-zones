@@ -53,13 +53,20 @@ stages:
             ScriptType: 'InlineScript' # 'FilePath'
             #ScriptPath: '/script.ps1'
             Inline: |
-              Write-Host "Hello from Azure PowerShell task"
+              Write-Host "Deploying Management Group Deployment Stack"
+              new-AzManagementGroupDeploymentStack `
+                -Name "testingMGstack" `
+                -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" `
+                -Location "Sweden Central" `
+                -TemplateFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/mgmtGroupStructure.bicep" `
+                -ActionOnUnManage 'DeleteAll' ` 
+                -DenySettingsMode 'none'
             #ScriptArguments: '-param1 value1 -param2 value2'
             errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
             FailOnStandardError: false
             azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
             #preferredAzurePowerShellVersion: '7.1.0'
             pwsh: true
-            #workingDirectory: '$(System.DefaultWorkingDirectory)'
+            workingDirectory: '$(System.DefaultWorkingDirectory)'
 
 

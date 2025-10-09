@@ -7,7 +7,7 @@ var rootMgName = 'papliba'
 var rootMgId = 'papliba'
 
 @description('first Level hirarchy')
-var mgHirarchy = [
+var hirarchy = [
   { 
     name: 'Platform-test' 
     id: 'platform-test' 
@@ -41,7 +41,7 @@ var mgHirarchy = [
 ]
 
 @description('Mg hirarchy')
-module mgHirarchy 'modules/.mg.bicep' = [for mg in mgHirarchy: {
+module mgHirarchy 'modules/.mg.bicep' = [for mg in hirarchy: {
   params: {
     rootMgId: rootMgId
     rootMgName: rootMgName
