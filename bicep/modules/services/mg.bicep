@@ -1,8 +1,8 @@
 targetScope = 'managementGroup'
 
 @description('org')
-param orgIdentifier string = 'plbl'
-param prefix string = ''
+param orgIdentifier string
+param prefix string
 
 @description('variables')
 var platform = 'platform'
