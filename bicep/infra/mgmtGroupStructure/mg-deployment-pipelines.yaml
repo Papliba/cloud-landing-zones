@@ -9,8 +9,8 @@ stages:
 - stage: mg_deployment
   displayName: 
   jobs:
-  - job: mg_deployment
-    displayName: mg_deployment
+  - job: dev_mg_deployment
+    displayName: dev_mg_deployment
     steps: 
     # AddThis to snippets
     # - script: echo "Hello World"
@@ -22,7 +22,64 @@ stages:
         #ScriptPath: '/script.ps1'
         Inline: |
           Write-Host "Deploying Management Group Deployment Stack"
-          new-AzManagementGroupDeploymentStack -Name "testingMGstack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/mgmtGroupStructure.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+          new-AzManagementGroupDeploymentStack -Name "testingMGstack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/dev.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+        #ScriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+        FailOnStandardError: false
+        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+
+  - job: test_mg_deployment
+    displayName: test_mg_deployment
+    steps: 
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'mi-platform-mg-sc-nonprod-001'
+        ScriptType: 'InlineScript' # 'FilePath'
+        #ScriptPath: '/script.ps1'
+        Inline: |
+          Write-Host "Deploying Management Group Deployment Stack"
+          new-AzManagementGroupDeploymentStack -Name "testingMGstack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+        #ScriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+        FailOnStandardError: false
+        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+
+  - job: nonprod_mg_deployment
+    displayName: nonprod_mg_deployment
+    steps: 
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'mi-platform-mg-sc-nonprod-001'
+        ScriptType: 'InlineScript' # 'FilePath'
+        #ScriptPath: '/script.ps1'
+        Inline: |
+          Write-Host "Deploying Management Group Deployment Stack"
+          new-AzManagementGroupDeploymentStack -Name "testingMGstack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+        #ScriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+        FailOnStandardError: false
+        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+
+  - job: prod_mg_deployment
+    displayName: prod_mg_deployment
+    steps: 
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'mi-platform-mg-sc-nonprod-001'
+        ScriptType: 'InlineScript' # 'FilePath'
+        #ScriptPath: '/script.ps1'
+        Inline: |
+          Write-Host "Deploying Management Group Deployment Stack"
+          new-AzManagementGroupDeploymentStack -Name "testingMGstack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
