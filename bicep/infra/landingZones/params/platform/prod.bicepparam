@@ -8,6 +8,6 @@ param billingScope = '/providers/Microsoft.Billing/billingAccounts/6a96a13c-1f1c
 param tags = {
   org: 'plb'
   environment: 'prod' 
-  project: 'platform'
-  owner: 'team-platform'
+  project: 'clz'
+  owner: 'sunny.bharne@gmail.com'
 }
