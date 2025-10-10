@@ -11,21 +11,13 @@ param tags object
 ])
 param workload string
 
-@description('Subscription Deployment')
-resource sub 'Microsoft.Subscription/aliases@2024-08-01-preview' = {
-  scope: tenant()
-  name: subscriptionName
-  properties: {
-    additionalProperties: {
-      managementGroupId: managementGroupId
-      // subscriptionOwnerId: 'string'
-      // subscriptionTenantId: 'string'
-      tags: tags
-    }
-    billingScope: billingScope
-    displayName: subscriptionName
-    // resellerId: 'string'
-    // subscriptionId: 'string'
-    workload: workload
+@description('create subs')
+module subCreate '../resource/sub-create.bicep' = {
+  params: {
+    subscriptionname : subscriptionname
+    managementGroupId : managementGroupId
+    billingScope : billingScope
+    tags : tags
+    workload : workload
   }
 }
