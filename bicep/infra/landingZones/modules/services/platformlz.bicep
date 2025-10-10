@@ -14,7 +14,7 @@ param workload string
 @description('create subs')
 module subCreate '../resource/sub-create.bicep' = {
   params: {
-    subscriptionname : subscriptionname
+    subscriptionName : subscriptionName
     managementGroupId : managementGroupId
     billingScope : billingScope
     tags : tags

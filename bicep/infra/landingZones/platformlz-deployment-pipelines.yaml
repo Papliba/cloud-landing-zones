@@ -21,7 +21,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          Write-Host "Hello world"
+          new-AzManagementGroupDeploymentStack -Name "platform-sub-stack" -ManagementGroupId "plb-platform" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/landingZones/params/platform/nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
