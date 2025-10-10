@@ -1,1 +1,17 @@
+trigger:
+  branches:
+    include:
+    - main
+
+pool: 'selfhosted'
+
+stages:
+- stage: sub_deploy
+  displayName: sub_deploy
+  jobs:
+  - job: sub_deploy
+    displayName: sub_deploy
+    steps: 
+    - script: echo "Hello World"
+      displayName: "Print Hello World"
 
