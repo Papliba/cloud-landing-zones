@@ -1,25 +1,31 @@
 targetScope = 'managementGroup'
 
 @description('Subscription Name')
-param subscriptionName string = 'default-value'
-
-param managementGroupId string = 'default-value'
+param subscriptionName string
+param managementGroupId string
+param billingScope string
+param tags object
+@allowed([  
+  'Production'  
+  'DevTest'
+])
+param workload string
 
 @description('Subscription Deployment')
 resource sub 'Microsoft.Subscription/aliases@2024-08-01-preview' = {
   scope: tenant()
-  name: 'subscriptionName'
+  name: subscriptionName
   properties: {
     additionalProperties: {
-      managementGroupId: 'managementGroupId'
+      managementGroupId: managementGroupId
       // subscriptionOwnerId: 'string'
       // subscriptionTenantId: 'string'
       tags: tags
     }
-    billingScope: 'string'
-    displayName: 'string'
+    billingScope: billingScope
+    displayName: subscriptionName
     // resellerId: 'string'
     // subscriptionId: 'string'
-    workload: 'Production' # 'DevTest'
+    workload: workload
   }
 }
