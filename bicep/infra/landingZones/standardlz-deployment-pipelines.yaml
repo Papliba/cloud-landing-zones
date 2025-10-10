@@ -2,6 +2,9 @@ trigger:
   branches:
     include:
     - main
+  paths:
+    include:
+    - bicep/infra/landingZones/params/**
 
 pool: 'selfhosted'
 
@@ -12,5 +15,18 @@ stages:
   - job: sub_deploy
     displayName: sub_deploy
     steps: 
-    - script: echo "Hello World"
-      displayName: "Print Hello World"
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'mi-platform-standard-sub-sc-nonprod-001'
+        ScriptType: 'InlineScript' # 'FilePath'
+        #ScriptPath: '/script.ps1'
+        Inline: |
+          Write-Host "Hello world"
+        #ScriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+        FailOnStandardError: false
+        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+      displayName: 'deploy sub'

@@ -2,6 +2,9 @@ trigger:
   branches:
     include:
     - main
+  paths:
+    include:
+    - bicep/infra/landingZones/params/**
 
 pool: 'selfhosted'
 
@@ -14,7 +17,7 @@ stages:
     steps: 
     - task: AzurePowerShell@5
       inputs:
-        azureSubscription: 'serviceConnection'
+        azureSubscription: 'mi-platform-platform-sub-sc-nonprod-001'
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
@@ -27,5 +30,4 @@ stages:
         pwsh: true
         workingDirectory: '$(System.DefaultWorkingDirectory)'
       displayName: 'deploy sub'
-
 
