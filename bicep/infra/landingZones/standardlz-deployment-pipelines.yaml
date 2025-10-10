@@ -14,4 +14,3 @@ stages:
     steps: 
     - script: echo "Hello World"
       displayName: "Print Hello World"
-

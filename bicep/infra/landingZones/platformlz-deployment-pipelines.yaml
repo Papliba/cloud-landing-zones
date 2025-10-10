@@ -12,6 +12,20 @@ stages:
   - job: sub_deploy
     displayName: sub_deploy
     steps: 
-    - script: echo "Hello World"
-      displayName: "Print Hello World"
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'serviceConnection'
+        ScriptType: 'InlineScript' # 'FilePath'
+        #ScriptPath: '/script.ps1'
+        Inline: |
+          Write-Host "Hello world"
+        #ScriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+        FailOnStandardError: false
+        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+      displayName: 'deploy sub'
+
 
