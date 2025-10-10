@@ -6,11 +6,11 @@ trigger:
 pool: 'selfhosted'
 
 stages:
-- stage: dev_mg_deploy
+- stage: dev_mg
   displayName: 
   jobs:
-  - job: dev_mg_deploy
-    displayName: dev_mg_deploy
+  - job: dev_mg
+    displayName: dev_mg
     steps: 
     - task: AzurePowerShell@5
       inputs:
@@ -18,7 +18,6 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          Write-Host "Deploying Dev Management Group Deployment Stack"
           new-AzManagementGroupDeploymentStack -Name "dev-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/dev.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
@@ -27,13 +26,28 @@ stages:
         #preferredAzurePowerShellVersion: '7.1.0'
         pwsh: true
         workingDirectory: '$(System.DefaultWorkingDirectory)'
-      displayName: 'Deploy MG Structure to Dev'
+      displayName: 'whatif_dev_mg'
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'mi-platform-mg-sc-nonprod-001'
+        ScriptType: 'InlineScript' # 'FilePath'
+        #ScriptPath: '/script.ps1'
+        Inline: |
+          new-AzManagementGroupDeploymentStack -Name "dev-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/dev.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+        #ScriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+        FailOnStandardError: false
+        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+      displayName: 'deploy_dev_mg'
 
-- stage: test_mg_deploy
+- stage: test_mg
   displayName: 
   jobs:
-  - job: test_mg_deploy
-    displayName: test_mg_deploy
+  - job: test_mg
+    displayName: test_mg
     steps: 
     - task: AzurePowerShell@5
       inputs:
@@ -41,7 +55,21 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          Write-Host "Deploying Test Management Group Deployment Stack"
+          new-AzManagementGroupDeploymentStack -Name "test-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
+        #ScriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+        FailOnStandardError: false
+        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+      displayName: 'whatif_test_mg'
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'mi-platform-mg-sc-nonprod-001'
+        ScriptType: 'InlineScript' # 'FilePath'
+        #ScriptPath: '/script.ps1'
+        Inline: |
           new-AzManagementGroupDeploymentStack -Name "test-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
@@ -50,13 +78,13 @@ stages:
         #preferredAzurePowerShellVersion: '7.1.0'
         pwsh: true
         workingDirectory: '$(System.DefaultWorkingDirectory)'
-      displayName: 'Deploy MG Structure to Test'
+      displayName: 'deploy_test_mg'
 
-- stage: nonprod_mg_deploy
+- stage: nonprod_mg
   displayName: 
   jobs:
-  - job: nonprod_mg_deploy
-    displayName: nonprod_mg_deploy
+  - job: nonprod_mg
+    displayName: nonprod_mg
     steps: 
     - task: AzurePowerShell@5
       inputs:
@@ -64,7 +92,21 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          Write-Host "Deploying NonProd Management Group Deployment Stack"
+          new-AzManagementGroupDeploymentStack -Name "nonprod-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
+        #ScriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+        FailOnStandardError: false
+        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+      displayName: 'whatif_nonprod_mg'
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'mi-platform-mg-sc-nonprod-001'
+        ScriptType: 'InlineScript' # 'FilePath'
+        #ScriptPath: '/script.ps1'
+        Inline: |
           new-AzManagementGroupDeploymentStack -Name "nonprod-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
@@ -73,13 +115,13 @@ stages:
         #preferredAzurePowerShellVersion: '7.1.0'
         pwsh: true
         workingDirectory: '$(System.DefaultWorkingDirectory)'
-      displayName: 'Deploy MG Structure to NonProd'
+      displayName: 'deploy_nonprod_mg'
 
-- stage: prod_mg_deploy
+- stage: prod_mg
   displayName: 
   jobs:
-  - job: prod_mg_deploy
-    displayName: prod_mg_deploy
+  - job: prod_mg
+    displayName: prod_mg
     steps: 
     - task: AzurePowerShell@5
       inputs:
@@ -87,7 +129,21 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          Write-Host "Deploying Prod Management Group Deployment Stack"
+          new-AzManagementGroupDeploymentStack -Name "prod-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/prod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
+        #ScriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+        FailOnStandardError: false
+        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+      displayName: 'whatif_prod_mg'
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'mi-platform-mg-sc-nonprod-001'
+        ScriptType: 'InlineScript' # 'FilePath'
+        #ScriptPath: '/script.ps1'
+        Inline: |
           new-AzManagementGroupDeploymentStack -Name "prod-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/prod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
@@ -96,4 +152,4 @@ stages:
         #preferredAzurePowerShellVersion: '7.1.0'
         pwsh: true
         workingDirectory: '$(System.DefaultWorkingDirectory)'
-      displayName: 'Deploy MG Structure to Prod'
+      displayName: 'deploy_prod_mg'
