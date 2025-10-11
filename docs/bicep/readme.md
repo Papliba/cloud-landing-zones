@@ -1,8 +1,10 @@
 #  Bicep
 
-> [!IMPORTANT]
-[Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/)
-[Api-Reference](https://learn.microsoft.com/en-us/azure/templates/)
+
+ | Link | Status |
+ |------|--------|
+ | [Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/) | ![Status: In Progress](https://img.shields.io/badge/status-in--progress-yellow) |
+
 
 ## Overview
 
