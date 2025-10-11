@@ -9,3 +9,5 @@
   - Its a separete container for your configuraiton
 - Throughtput units
   - 1 throghput unit process 1000 requests per second
+
+- The `AegDeliveryFailureLogs` table in Log Analytics records delivery failures for Azure Event Grid events. Use this table to monitor, troubleshoot, and analyze undelivered events.
