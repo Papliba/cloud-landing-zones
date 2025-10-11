@@ -2,6 +2,9 @@ trigger:
   branches:
     include:
     - main
+  paths:
+    include:
+    - management-groups/bicep/**
 
 pool: 'selfhosted'
 
@@ -18,7 +21,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "dev-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/dev.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+          new-AzManagementGroupDeploymentStack -Name "dev-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/management-groups/bicep/params/dev.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -33,7 +36,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "dev-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/dev.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+          new-AzManagementGroupDeploymentStack -Name "dev-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/management-groups/bicep/params/dev.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -55,7 +58,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "test-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
+          new-AzManagementGroupDeploymentStack -Name "test-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/management-groups/bicep/params/test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -70,7 +73,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "test-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+          new-AzManagementGroupDeploymentStack -Name "test-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/management-groups/bicep/params/test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -92,7 +95,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "nonprod-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
+          new-AzManagementGroupDeploymentStack -Name "nonprod-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/management-groups/bicep/params/nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -107,7 +110,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "nonprod-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+          new-AzManagementGroupDeploymentStack -Name "nonprod-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/management-groups/bicep/params/nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -129,7 +132,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "prod-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/prod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
+          new-AzManagementGroupDeploymentStack -Name "prod-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/management-groups/bicep/params/prod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -144,7 +147,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "prod-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/mgmtGroupStructure/params/prod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+          new-AzManagementGroupDeploymentStack -Name "prod-mg-stack" -ManagementGroupId "c0f414ff-9e2d-4011-929c-fe21ed71b218" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/management-groups/bicep/params/prod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false

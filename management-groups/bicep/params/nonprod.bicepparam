@@ -1,4 +1,4 @@
-using '../modules/services/mg.bicep'
+using '../../../modules/bicep/services/mg.bicep'
 
 @description('org')
 param orgIdentifier = 'plb'
