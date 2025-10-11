@@ -1,0 +1,92 @@
+#  Azure policy event grid
+
+---
+| Link | Status |
+|------|--------|
+| [Azure policy Event Grid](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/event-overview?tabs=event-grid-event-schema) | ![Status: Completed](https://img.shields.io/badge/status-completed-brightgreen) |
+
+
+## Overview
+- Event grid acts on the policy events.
+- Produccer and consumer can be outside azure.
+
+### Concepts
+- Event (these can be the changes in the policy compliance)
+- Event grid subscription is the configuration to filter the event and send to the consumer
+
+### Type of event for policies
+- Microsoft.PolicyInsights.PolicyStateCreated
+- Microsoft.PolicyInsights.PolicyStateChanged
+- Microsoft.PolicyInsights.PolicyStateDeleted
+
+### Event schema
+- Topic : Full resource path to the event source.
+- subject: The fully qualified ID of the resource that the compliance state change is for, including the resource name and resource type. Uses the format, /subscriptions/<SubscriptionID>/resourceGroups/<ResourceGroup>/providers/<ProviderNamespace>/<ResourceType>/<ResourceName>
+- eventType:
+- eventTime:
+- id:
+- data:
+- dataVersion:
+- metadataVersion:
+
+### Could Event schema
+- Property
+- source
+- subject
+- type
+- time
+- id
+- data
+- specversion
+
+### Properties
+- timestamp
+- policyAssignmentId
+- policyDefinitionId
+- policyDefinitionReferenceId
+- complianceState
+- subscriptionId
+- complianceReasonCode
+
+### Example event
+```
+[{
+    "id": "5829794FCB5075FCF585476619577B5A5A30E52C84842CBD4E2AD73996714C4C",
+    "topic": "/subscriptions/<SubscriptionID>",
+    "subject": "/subscriptions/<SubscriptionID>/resourceGroups/<ResourceGroup>/providers/<ProviderNamespace>/<ResourceType>/<ResourceName>",
+    "data": {
+        "timestamp": "2021-03-27T18:37:42.4496956Z",
+        "policyAssignmentId": "<policy-assignment-scope>/providers/microsoft.authorization/policyassignments/<policy-assignment-name>",
+        "policyDefinitionId": "<policy-definition-scope>/providers/microsoft.authorization/policydefinitions/<policy-definition-name>",
+        "policyDefinitionReferenceId": "",
+        "complianceState": "NonCompliant",
+        "subscriptionId": "<subscription-id>",
+        "complianceReasonCode": ""
+    },
+    "eventType": "Microsoft.PolicyInsights.PolicyStateCreated",
+    "eventTime": "2021-03-27T18:37:42.5241536Z",
+    "dataVersion": "1",
+    "metadataVersion": "1"
+}]
+```
+
+### Example could event
+```bash
+[{
+    "id": "5829794FCB5075FCF585476619577B5A5A30E52C84842CBD4E2AD73996714C4C",
+    "source": "/subscriptions/<SubscriptionID>",
+    "subject": "/subscriptions/<SubscriptionID>/resourceGroups/<ResourceGroup>/providers/<ProviderNamespace>/<ResourceType>/<ResourceName>",
+    "data": {
+        "timestamp": "2021-03-27T18:37:42.4496956Z",
+        "policyAssignmentId": "<policy-assignment-scope>/providers/microsoft.authorization/policyassignments/<policy-assignment-name>",
+        "policyDefinitionId": "<policy-definition-scope>/providers/microsoft.authorization/policydefinitions/<policy-definition-name>",
+        "policyDefinitionReferenceId": "",
+        "complianceState": "NonCompliant",
+        "subscriptionId": "<subscription-id>",
+        "complianceReasonCode": ""
+    },
+    "type": "Microsoft.PolicyInsights.PolicyStateCreated",
+    "time": "2021-03-27T18:37:42.5241536Z",
+    "specversion": "1.0"
+}]n
+```

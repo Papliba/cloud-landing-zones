@@ -1,16 +1,16 @@
 targetScope = 'subscription'
 
-param tags object = {
-  org: 'sonal'
-  environment: 'sonal' 
-  project: 'sonal'
-  owner: 'sonal'
-}
+// param tags object = {
+//   org: 'sonal'
+//   environment: 'sonal' 
+//   project: 'sonal'
+//   owner: 'sonal'
+// }
 
-var policyParams array = array(tags)
+// var policyParams array = array(tags)
 
 resource subTagPolicyAssignments 'Microsoft.Authorization/policyAssignments@2025-03-01' = {
-  name: 'roleassignment'
+  name: 'roleassignment1'
   identity: {
     type: 'SystemAssigned'
   }
@@ -37,7 +37,7 @@ resource subTagPolicyAssignments 'Microsoft.Authorization/policyAssignments@2025
 }
 
 resource subTagPolicyAssignments2 'Microsoft.Authorization/policyAssignments@2025-03-01' = {
-  name: 'roleassignment'
+  name: 'roleassignment2'
   identity: {
     type: 'SystemAssigned'
   }
@@ -64,7 +64,7 @@ resource subTagPolicyAssignments2 'Microsoft.Authorization/policyAssignments@202
 }
 
 resource subTagPolicyAssignments3 'Microsoft.Authorization/policyAssignments@2025-03-01' = {
-  name: 'roleassignment'
+  name: 'roleassignment3'
   identity: {
     type: 'SystemAssigned'
   }
