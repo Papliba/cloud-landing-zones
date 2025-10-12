@@ -4,7 +4,7 @@ targetScope = 'managementGroup'
 param subscriptionName string
 param managementGroupId string
 param billingScope string
-param tags object
+// param tags object
 @allowed([  
   'Production'  
   'DevTest'
@@ -20,7 +20,7 @@ resource sub 'Microsoft.Subscription/aliases@2024-08-01-preview' = {
       managementGroupId: managementGroupId
       // subscriptionOwnerId: 'string'
       // subscriptionTenantId: 'string'
-      tags: tags
+      // tags: tags
     }
     billingScope: billingScope
     displayName: subscriptionName
