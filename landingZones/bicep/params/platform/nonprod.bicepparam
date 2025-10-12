@@ -1,4 +1,4 @@
-using '../../modules/services/platformlz.bicep'
+using '../../../modules/bicep/services/platformlz.bicep'
 
 // @description('Subscription Param')
 // param subscriptionName = 'plb-platform-nonprod-001'
