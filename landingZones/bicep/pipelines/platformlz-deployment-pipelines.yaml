@@ -4,7 +4,7 @@ trigger:
     - main
   paths:
     include:
-    - bicep/infra/landingZones/params/**
+    - landingZones/bicep/params/**
 
 pool: 'selfhosted'
 
@@ -14,7 +14,6 @@ stages:
   jobs:
   - job: sub_deploy
     displayName: sub_deploy
-
     steps: 
     - task: AzurePowerShell@5
       inputs:
@@ -31,21 +30,3 @@ stages:
         pwsh: true
         workingDirectory: '$(System.DefaultWorkingDirectory)'
       displayName: 'sub tags policy assignment'
-
-
-    # steps: 
-    # - task: AzurePowerShell@5
-    #   inputs:
-    #     azureSubscription: 'mi-platform-platform-sub-sc-nonprod-001'
-    #     ScriptType: 'InlineScript' # 'FilePath'
-    #     #ScriptPath: '/script.ps1'
-    #     Inline: |
-    #       new-AzManagementGroupDeploymentStack -Name "platform-sub-stack" -ManagementGroupId "plb-platform" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/bicep/infra/landingZones/params/platform/nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
-    #     #ScriptArguments: '-param1 value1 -param2 value2'
-    #     errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
-    #     FailOnStandardError: false
-    #     azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
-    #     #preferredAzurePowerShellVersion: '7.1.0'
-    #     pwsh: true
-    #     workingDirectory: '$(System.DefaultWorkingDirectory)'
-    #   displayName: 'deploy sub'
