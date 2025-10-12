@@ -4,6 +4,8 @@ targetScope = 'managementGroup'
 param subscriptionName string
 param managementGroupId string
 param billingScope string
+param billingProfile string
+param invoiceSection string
 // param tags object
 @allowed([  
   'Production'  
@@ -22,7 +24,7 @@ resource sub 'Microsoft.Subscription/aliases@2024-08-01-preview' = {
       // subscriptionTenantId: 'string'
       // tags: tags
     }
-    billingScope: billingScope
+    billingScope: '/providers/Microsoft.Billing/billingAccounts/${billingScope}/billingProfiles/${billingProfile}/invoiceSections/${invoiceSection}'
     displayName: subscriptionName
     // resellerId: 'string'
     // subscriptionId: 'string'

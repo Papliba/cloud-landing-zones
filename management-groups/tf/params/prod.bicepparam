@@ -1,5 +1,5 @@
 using '../../../modules/bicep/services/mg.bicep'
 
 @description('org')
-param orgIdentifier = 'plb'
+param orgIdentifier = 'plbtf'
 param prefix = ''

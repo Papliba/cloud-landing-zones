@@ -16,7 +16,7 @@ variables:
 - name:  tenantRootManagementGroupId
   value: 'edcdcd05-f72e-4577-a6b4-5c1c367b4deb'
 - name:  templateParameterFile
-  value: "$(System.DefaultWorkingDirectory)/management-groups/bicep/params/"
+  value: "$(System.DefaultWorkingDirectory)/management-groups/tf/params/"
 
 stages:
 - stage: dev_mg
@@ -31,7 +31,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "dev-mg-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}dev.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+          new-AzManagementGroupDeploymentStack -Name "dev-mg-tf-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}dev.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -46,7 +46,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "dev-mg-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}dev.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+          new-AzManagementGroupDeploymentStack -Name "dev-mg-tf-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}dev.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -68,7 +68,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "test-mg-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
+          new-AzManagementGroupDeploymentStack -Name "test-mg-tf-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -83,7 +83,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "test-mg-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+          new-AzManagementGroupDeploymentStack -Name "test-mg-tf-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -105,7 +105,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "nonprod-mg-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
+          new-AzManagementGroupDeploymentStack -Name "nonprod-mg-tf-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -120,7 +120,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "nonprod-mg-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+          new-AzManagementGroupDeploymentStack -Name "nonprod-mg-tf-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -142,7 +142,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "prod-mg-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}prod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
+          new-AzManagementGroupDeploymentStack -Name "prod-mg-tf-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}prod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force -WhatIf
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -157,7 +157,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "prod-mg-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}prod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+          new-AzManagementGroupDeploymentStack -Name "prod-mg-tf-stack" -ManagementGroupId "${{ variables.tenantRootManagementGroupId }}" -Location "${{ variables.location }}" -TemplateParameterFile "${{ variables.templateParameterFile }}prod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false

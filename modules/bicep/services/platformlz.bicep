@@ -4,6 +4,8 @@ targetScope = 'managementGroup'
 param subscriptionName string
 param managementGroupId string
 param billingScope string
+param billingProfile string
+param invoiceSection string
 // param tags object
 @allowed([  
   'Production'  
@@ -17,8 +19,10 @@ module subCreate '../resource/sub-create.bicep' = {
     subscriptionName : subscriptionName
     managementGroupId : managementGroupId
     billingScope : billingScope
-    // tags : tags
+    billingProfile: billingProfile
+    invoiceSection: invoiceSection
     workload : workload
+    // tags : tags
   }
 }
 
