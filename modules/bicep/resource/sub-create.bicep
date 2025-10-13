@@ -14,7 +14,7 @@ param invoiceSection string
 param workload string
 
 @description('Subscription Deployment')
-resource sub 'Microsoft.Subscription/aliases@2024-08-01-preview' = {
+resource sub 'Microsoft.Subscription/aliases@2021-10-01' = {
   scope: tenant()
   name: subscriptionName
   properties: {
