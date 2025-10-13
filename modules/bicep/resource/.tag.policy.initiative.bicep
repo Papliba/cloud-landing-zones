@@ -28,6 +28,28 @@ resource tagPolicySet 'Microsoft.Authorization/policySetDefinitions@2025-03-01' 
           }
         }
       }
+      {
+        policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/61a4d60b-7326-440e-8051-9f94394d4dd1'
+        parameters: {
+          tagName: {
+            value: tagName
+          }
+          tagValue: {
+            value: tagValue
+          }
+        }
+      }
+      {
+        policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/61a4d60b-7326-440e-8051-9f94394d4dd1'
+        parameters: {
+          tagName: {
+            value: tagName
+          }
+          tagValue: {
+            value: tagValue
+          }
+        }
+      }
     ]
   }
 }
