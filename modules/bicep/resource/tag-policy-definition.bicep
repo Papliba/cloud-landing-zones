@@ -1,5 +1,11 @@
 targetScope = 'subscription'
 
+// @description('Name of the tag, such as "environment" or "costCenter".')
+// param tagName string
+//
+// @description('Required value for the specified tag.')
+// param tagValue string
+//
 resource tagPolicyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
   name: 'tag-policy-definition'
   properties: {
@@ -50,24 +56,24 @@ resource tagPolicyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-
   }
 }
 
-resource tagPolicyAssignment 'Microsoft.Authorization/policyAssignments@2021-06-01' = {
-  name: 'tag-policy-assignment'
-  location: 'centralindia'
-  properties: {
-    displayName: 'Assignment for Tag Policy'
-    description: 'Assigns the tag enforcement policy to the subscription.'
-    policyDefinitionId: tagPolicyDefinition.id
-    parameters: {
-      tagName: {
-        value: 'RudraPapliba'
-      }
-      tagValue: {
-        value: 'RudraPapliba'
-      }
-    }
-    enforcementMode: 'Default'
-  }
-}
+// resource tagPolicyAssignment 'Microsoft.Authorization/policyAssignments@2021-06-01' = {
+//   name: 'tag-policy-assignment'
+//   location: 'centralindia'
+//   properties: {
+//     displayName: 'Assignment for Tag Policy'
+//     description: 'Assigns the tag enforcement policy to the subscription.'
+//     policyDefinitionId: tagPolicyDefinition.id
+//     parameters: {
+//       tagName: {
+//         value: 'RudraPapliba'
+//       }
+//       tagValue: {
+//         value: 'RudraPapliba'
+//       }
+//     }
+//     enforcementMode: 'Default'
+//   }
+// }
 
 // resource tag_policies Microsoft.Authorization/policyDefinitions@2020-03-01' = {
 

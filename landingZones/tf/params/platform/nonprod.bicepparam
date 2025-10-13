@@ -1,4 +1,4 @@
-using '../../../../modules/bicep/services/platformlz.bicep'
+using '../../../../modules/bicep/services/.lz.bicep'
 
 @description('Subscription Param')
 param subscriptionName = 'plbtf-platform-nonprod-001'

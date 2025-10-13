@@ -32,6 +32,8 @@ resource sub 'Microsoft.Subscription/aliases@2021-10-01' = {
   }
 }
 
+output subscriptionId string = sub.properties.subscriptionId
+
 // resource subToMG 'Microsoft.Management/managementGroups/subscriptions@2020-05-01' = {
 //   scope: tenant()
 //   name: '${managementGroupId}/${sub.id}'
