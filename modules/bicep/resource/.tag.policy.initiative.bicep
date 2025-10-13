@@ -6,53 +6,29 @@ targetScope = 'subscription'
 // @description('Required value for the specified tag.')
 // param tagValue string
 //
-resource tagPolicyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
-  name: 'tag-policy-definition'
+
+resource tagPolicySet 'Microsoft.Authorization/policySetDefinitions@2025-03-01' = {
+  name: 'tag-policy-set-definition'
   properties: {
-    description: 'This policy ensures that specific tags and their values are applied to resources.'
-    displayName: 'Enforce Specific Tags on Resources'
-    mode: 'All'
-    policyRule: {
-      if: {
-        allOf: [
-            {
-              field: 'type'
-              exists: true
-            }
-          {
-            anyOf: [
-              {
-                field: '[concat('tags[', parameters('tagName'), ']')]'
-                notEquals: '[parameters('tagValue')]'
-              }
-              {
-                field: '[concat('tags[', parameters('tagName'), ']')]'
-                exists: false
-              }
-            ]
+    displayName: 'Tag Policy Set Definition'
+    description: 'Policy set to enforce tagging on resources, resource groups, and subscriptions.'
+    metadata: {
+      category: 'Tags'
+      version: '1.0.0'
+    }
+    policyDefinitions: [
+      {
+        policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/61a4d60b-7326-440e-8051-9f94394d4dd1'
+        parameters: {
+          tagName: {
+            value: tagName
           }
-        ]
-      }
-      then: {
-        effect: 'deny'
-      }
-    }
-    parameters: {
-      tagName: {
-        type: 'String'
-        metadata: {
-          description: 'Name of the tag, such as "environment" or "costCenter".'
-          displayName: 'Tag Name'
+          tagValue: {
+            value: tagValue
+          }
         }
       }
-      tagValue: {
-        type: 'String'
-        metadata: {
-          description: 'Required value for the specified tag.'
-          displayName: 'Tag Value'
-        }
-      }
-    }
+    ]
   }
 }
 
@@ -76,7 +52,6 @@ resource tagPolicyDefinition 'Microsoft.Authorization/policyDefinitions@2021-06-
 // }
 
 // resource tag_policies Microsoft.Authorization/policyDefinitions@2020-03-01' = {
-
 
 // param tags object = {
 //   org: 'sonal'

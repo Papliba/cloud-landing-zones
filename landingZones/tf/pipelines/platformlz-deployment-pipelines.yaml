@@ -32,7 +32,7 @@ stages:
                 -DenySettingsMode 'None' `
                 -Force
                 )
-                # -ActionOnUnManage 'DeleteAll' ` # | DeleteResources | DeleteAll
+                # -ActionOnUnManage 'DetachAll' ` # | DeleteResources | DeleteAll
                 # -DenySettingsMode 'None' ` # | DenyDelete | DenyWriteAndDelete `
                 
           write-output '------- Outputs -------'
@@ -78,13 +78,16 @@ stages:
              New-AzSubscriptionDeploymentStack `
                 -Name "tag-policy-stack" `
                 -Location "West India" `
-                -TemplateParameterFile "$(System.DefaultWorkingDirectory)/landingZones/tf/params/platform/nonprod.bicepparam" `
+                -TemplateParameterFile "$(System.DefaultWorkingDirectory)/landingZones/tf/params/platform/policy-nonprod.bicepparam" `
                 -ActionOnUnManage 'DeleteAll' `
                 -DenySettingsMode 'DenyDelete' `
                 -Force
                 )
-                # -ActionOnUnManage 'DeleteAll' ` # | DeleteResources | DeleteAll
+                # -ActionOnUnManage 'DetachAll' ` # | DeleteResources | DeleteAll
                 # -DenySettingsMode 'None' ` # | DenyDelete | DenyWriteAndDelete `
+                
+          write-output '------- Response -------'
+          $response
 
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
