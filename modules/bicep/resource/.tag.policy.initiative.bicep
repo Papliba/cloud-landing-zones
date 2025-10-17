@@ -1,11 +1,10 @@
 targetScope = 'subscription'
 
-// @description('Name of the tag, such as "environment" or "costCenter".')
-// param tagName string
-//
-// @description('Required value for the specified tag.')
-// param tagValue string
-//
+@description('Name of the tag, such as "environment" or "costCenter".')
+param tagName string
+
+@description('Required value for the specified tag.')
+param tagValue string
 
 resource tagPolicySet 'Microsoft.Authorization/policySetDefinitions@2025-03-01' = {
   name: 'tag-policy-set-definition'
@@ -17,28 +16,6 @@ resource tagPolicySet 'Microsoft.Authorization/policySetDefinitions@2025-03-01' 
       version: '1.0.0'
     }
     policyDefinitions: [
-      {
-        policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/61a4d60b-7326-440e-8051-9f94394d4dd1'
-        parameters: {
-          tagName: {
-            value: tagName
-          }
-          tagValue: {
-            value: tagValue
-          }
-        }
-      }
-      {
-        policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/61a4d60b-7326-440e-8051-9f94394d4dd1'
-        parameters: {
-          tagName: {
-            value: tagName
-          }
-          tagValue: {
-            value: tagValue
-          }
-        }
-      }
       {
         policyDefinitionId: '/providers/Microsoft.Authorization/policyDefinitions/61a4d60b-7326-440e-8051-9f94394d4dd1'
         parameters: {

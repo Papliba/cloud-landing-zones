@@ -53,48 +53,48 @@ stages:
       name: 'sub_deploy'
       displayName: 'sub_deploy'
 
-- stage: policy_deploy
-  displayName: policy_deploy
-  jobs:
-  - job: policy_deploy
-    displayName: policy_deploy
-    variables:
-      - name: subscriptionId
-        value: $[ stageDependencies.sub_deploy.sub_deploy.outputs['sub_deploy.subscriptionId'] ]
-    steps: 
-    - task: azurepowershell@5
-      inputs:
-        azuresubscription: 'mi-platform-plz-sub-wi-nonprod-001'
-        scripttype: 'inlinescript' # 'filepath'
-        #scriptpath: '/script.ps1'
-        inline: |
-          write-output '------- Input Variables -------'
-          write-output 'subscriptionId: ' $(subscriptionId)
-
-          Set-AzContext -Subscription $(subscriptionId)
-
-          # deploy on sub scope
-          $response = (
-             New-AzSubscriptionDeploymentStack `
-                -Name "tag-policy-stack" `
-                -Location "West India" `
-                -TemplateParameterFile "$(System.DefaultWorkingDirectory)/landingZones/tf/params/platform/policy-nonprod.bicepparam" `
-                -ActionOnUnManage 'DeleteAll' `
-                -DenySettingsMode 'DenyDelete' `
-                -Force
-                )
-                # -ActionOnUnManage 'DetachAll' ` # | DeleteResources | DeleteAll
-                # -DenySettingsMode 'None' ` # | DenyDelete | DenyWriteAndDelete `
-                
-          write-output '------- Response -------'
-          $response
-
-        #ScriptArguments: '-param1 value1 -param2 value2'
-        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
-        FailOnStandardError: false
-        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
-        #preferredAzurePowerShellVersion: '7.1.0'
-        pwsh: true
-        workingDirectory: '$(System.DefaultWorkingDirectory)'
-      name: 'policy_deploy'
-      displayName: 'policy_deploy'
+# - stage: policy_deploy
+#   displayName: policy_deploy
+#   jobs:
+#   - job: policy_deploy
+#     displayName: policy_deploy
+#     variables:
+#       - name: subscriptionId
+#         value: $[ stageDependencies.sub_deploy.sub_deploy.outputs['sub_deploy.subscriptionId'] ]
+#     steps: 
+#     - task: azurepowershell@5
+#       inputs:
+#         azuresubscription: 'mi-platform-plz-sub-wi-nonprod-001'
+#         scripttype: 'inlinescript' # 'filepath'
+#         #scriptpath: '/script.ps1'
+#         inline: |
+#           write-output '------- Input Variables -------'
+#           write-output 'subscriptionId: ' $(subscriptionId)
+#
+#           Set-AzContext -Subscription $(subscriptionId)
+#
+#           # deploy on sub scope
+#           $response = (
+#              New-AzSubscriptionDeploymentStack `
+#                 -Name "tag-policy-stack" `
+#                 -Location "West India" `
+#                 -TemplateParameterFile "$(System.DefaultWorkingDirectory)/landingZones/tf/params/platform/policy-nonprod.bicepparam" `
+#                 -ActionOnUnManage 'DeleteAll' `
+#                 -DenySettingsMode 'DenyDelete' `
+#                 -Force
+#                 )
+#                 # -ActionOnUnManage 'DetachAll' ` # | DeleteResources | DeleteAll
+#                 # -DenySettingsMode 'None' ` # | DenyDelete | DenyWriteAndDelete `
+#                 
+#           write-output '------- Response -------'
+#           $response
+#
+#         #ScriptArguments: '-param1 value1 -param2 value2'
+#         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+#         FailOnStandardError: false
+#         azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+#         #preferredAzurePowerShellVersion: '7.1.0'
+#         pwsh: true
+#         workingDirectory: '$(System.DefaultWorkingDirectory)'
+#       name: 'policy_deploy'
+#       displayName: 'policy_deploy'

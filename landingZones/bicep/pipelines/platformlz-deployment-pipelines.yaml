@@ -31,25 +31,25 @@ stages:
         workingDirectory: '$(System.DefaultWorkingDirectory)'
       displayName: 'platform sub creation'
 
-- stage: policy_deploy
-  displayName: policy_deploy
-  jobs:
-  - job: policy_deploy
-    displayName: policy_deploy
-    steps: 
-    - task: AzurePowerShell@5
-      inputs:
-        azureSubscription: 'mi-platform-platform-sub-sc-nonprod-001'
-        ScriptType: 'InlineScript' # 'FilePath'
-        #ScriptPath: '/script.ps1'
-        Inline: |
-          new-AzManagementGroupDeploymentStack -Name "platform-sub-stack" -ManagementGroupId "plb-platform" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/landingZones/bicep/params/platform/nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
-        #ScriptArguments: '-param1 value1 -param2 value2'
-        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
-        FailOnStandardError: false
-        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
-        #preferredAzurePowerShellVersion: '7.1.0'
-        pwsh: true
-        workingDirectory: '$(System.DefaultWorkingDirectory)'
-      displayName: 'platform sub creation'
-
+# - stage: policy_deploy
+#   displayName: policy_deploy
+#   jobs:
+#   - job: policy_deploy
+#     displayName: policy_deploy
+#     steps: 
+#     - task: AzurePowerShell@5
+#       inputs:
+#         azureSubscription: 'mi-platform-platform-sub-sc-nonprod-001'
+#         ScriptType: 'InlineScript' # 'FilePath'
+#         #ScriptPath: '/script.ps1'
+#         Inline: |
+#           new-AzManagementGroupDeploymentStack -Name "platform-sub-stack" -ManagementGroupId "plb-platform" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/landingZones/bicep/params/platform/nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+#         #ScriptArguments: '-param1 value1 -param2 value2'
+#         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+#         FailOnStandardError: false
+#         azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+#         #preferredAzurePowerShellVersion: '7.1.0'
+#         pwsh: true
+#         workingDirectory: '$(System.DefaultWorkingDirectory)'
+#       displayName: 'platform sub creation'
+#
