@@ -9,11 +9,11 @@ trigger:
 pool: 'selfhosted'
 
 stages:
-- stage: policy_deployment
-  displayName: 'Poilcy Deployment'
+- stage: dev_policy_deployment
+  displayName: 'Dev Poilcy Deployment'
   jobs:
-  - job: policy_deployment
-    displayName: policy_deployment
+  - job: dev_policy_deployment
+    displayName: dev_policy_deployment
     steps: 
     - task: AzurePowerShell@5
       inputs:
@@ -21,7 +21,7 @@ stages:
         ScriptType: 'InlineScript' # 'FilePath'
         #ScriptPath: '/script.ps1'
         Inline: |
-          new-AzManagementGroupDeploymentStack -Name "policy-definition-stack" -ManagementGroupId "plbtf" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/policyManagement/initiative/prod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+          new-AzManagementGroupDeploymentStack -Name "dev-policy-deployment-stack" -ManagementGroupId "plbtf-dev" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/policyManagement/assignments/dev.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
         #ScriptArguments: '-param1 value1 -param2 value2'
         errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
         FailOnStandardError: false
@@ -29,5 +29,70 @@ stages:
         #preferredAzurePowerShellVersion: '7.1.0'
         pwsh: true
         workingDirectory: '$(System.DefaultWorkingDirectory)'
-      displayName: 'Policy Definition Deployment'
+      displayName: 'Dev Policy Definition Deployment'
 
+- stage: test_policy_deployment
+  displayName: 'Test Poilcy Deployment'
+  jobs:
+  - job: test_policy_deployment
+    displayName: test_policy_deployment
+    steps: 
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'mi-platform-policy-management-sc-nonprod-001'
+        ScriptType: 'InlineScript' # 'FilePath'
+        #ScriptPath: '/script.ps1'
+        Inline: |
+          new-AzManagementGroupDeploymentStack -Name "test-policy-deployment-stack" -ManagementGroupId "plbtf-test" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/policyManagement/assignments/test.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+        #ScriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+        FailOnStandardError: false
+        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+      displayName: 'Test Policy Definition Deployment'
+
+- stage: nonprod_policy_deployment
+  displayName: 'NonProd Poilcy Deployment'
+  jobs:
+  - job: nonprod_policy_deployment
+    displayName: nonprod_policy_deployment
+    steps: 
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'mi-platform-policy-management-sc-nonprod-001'
+        ScriptType: 'InlineScript' # 'FilePath'
+        #ScriptPath: '/script.ps1'
+        Inline: |
+          new-AzManagementGroupDeploymentStack -Name "nonprod-policy-deployment-stack" -ManagementGroupId "plbtf-nonprod" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/policyManagement/assignments/nonprod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+        #ScriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+        FailOnStandardError: false
+        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+      displayName: 'Non Prod Policy Definition Deployment'
+
+- stage: prod_policy_deployment
+  displayName: 'Prod Poilcy Deployment'
+  jobs:
+  - job: prod_policy_deployment
+    displayName: prod_policy_deployment
+    steps: 
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'mi-platform-policy-management-sc-nonprod-001'
+        ScriptType: 'InlineScript' # 'FilePath'
+        #ScriptPath: '/script.ps1'
+        Inline: |
+          new-AzManagementGroupDeploymentStack -Name "prod-policy-deployment-stack" -ManagementGroupId "plbtf" -Location "Sweden Central" -TemplateParameterFile "$(System.DefaultWorkingDirectory)/policyManagement/assignments/prod.bicepparam" -ActionOnUnManage 'DeleteAll' -DenySettingsMode 'none' -Force
+        #ScriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlyContinue'
+        FailOnStandardError: false
+        azurePowerShellVersion:  'LatestVersion' # 'OtherVersion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)'
+      displayName: 'Prod Policy Definition Deployment'

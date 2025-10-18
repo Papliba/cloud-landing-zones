@@ -1,7 +1,7 @@
 targetScope = 'managementGroup'
 
 @description('Tag enforcement Initiative')
-resource mcf_gov_1001 'Microsoft.Authorization/policySetDefinitions@2023-04-01' = {
+resource mcf_gov_01 'Microsoft.Authorization/policySetDefinitions@2023-04-01' = {
   name: 'mcf_gov_1001'
   properties: {
     displayName: 'mcf_gov_1001'
