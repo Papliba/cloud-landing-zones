@@ -4,7 +4,7 @@ trigger:
     - main
   paths:
     include:
-    - landingZones/tf/params/**
+    - landingZones/tf/**
 
 pool: 'selfhosted'
 
@@ -53,11 +53,11 @@ stages:
       name: 'sub_deploy'
       displayName: 'sub_deploy'
 
-- stage: tag_policy_assignment
-  displayName: tag_policy_assignment
+- stage: tag_policy
+  displayName: tag_policy
   jobs:
-  - job: tag_policy_assignment
-    displayName: tag_policy_assignment
+  - job: tag_policy
+    displayName: tag_policy
     variables:
       - name: subscriptionId
         value: $[ stageDependencies.sub_deploy.sub_deploy.outputs['sub_deploy.subscriptionId'] ]
@@ -96,5 +96,5 @@ stages:
         #preferredAzurePowerShellVersion: '7.1.0'
         pwsh: true
         workingDirectory: '$(System.DefaultWorkingDirectory)'
-      name: 'tag_policy_assignment'
-      displayName: 'tag_policy_assignment'
+      name: 'tag_policy'
+      displayName: 'tag_policy'
