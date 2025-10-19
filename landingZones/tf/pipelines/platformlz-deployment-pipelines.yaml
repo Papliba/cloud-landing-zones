@@ -53,11 +53,11 @@ stages:
       name: 'sub_deploy'
       displayName: 'sub_deploy'
 
-- stage: policy_deploy
-  displayName: policy_deploy
+- stage: tag_policy_assignment
+  displayName: tag_policy_assignment
   jobs:
-  - job: policy_deploy
-    displayName: policy_deploy
+  - job: tag_policy_assignment
+    displayName: tag_policy_assignment
     variables:
       - name: subscriptionId
         value: $[ stageDependencies.sub_deploy.sub_deploy.outputs['sub_deploy.subscriptionId'] ]
@@ -96,5 +96,5 @@ stages:
         #preferredAzurePowerShellVersion: '7.1.0'
         pwsh: true
         workingDirectory: '$(System.DefaultWorkingDirectory)'
-      name: 'policy_deploy'
-      displayName: 'policy_deploy'
+      name: 'tag_policy_assignment'
+      displayName: 'tag_policy_assignment'
