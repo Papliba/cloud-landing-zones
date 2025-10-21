@@ -1,0 +1,10 @@
+{
+  "displayName": "Assign Compliance Baseline to Landing Zone",
+  "description": "Assignment of compliance initiative to landing zone management group",
+  "metadata": {
+    "assignedBy": "Terraform"
+  },
+  "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/plbtf-landingzones-${environment}/providers/Microsoft.Authorization/policySetDefinitions/compliance-baseline",
+  "parameters": {},
+  "enforcementMode": "Default"
+}

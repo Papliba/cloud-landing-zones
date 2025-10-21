@@ -1,0 +1,19 @@
+{
+  "policyType": "Custom",
+  "displayName": "Landing Zone Compliance Initiative",
+  "description": "Compliance policies for landing zone resources",
+  "metadata": {
+    "category": "Compliance"
+  },
+  "parameters": {},
+  "policyDefinitions": [
+    {
+      "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/plbtf-landingzones-${environment}/providers/Microsoft.Authorization/policyDefinitions/enforce-vm-sku",
+      "parameters": {}
+    },
+    {
+      "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/plbtf-landingzones-${environment}/providers/Microsoft.Authorization/policyDefinitions/require-vnet-nsg",
+      "parameters": {}
+    }
+  ]
+}

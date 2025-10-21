@@ -8,59 +8,243 @@ trigger:
 
 pool: 'selfhosted'
 
-stages:
-# - stage: tf_test
-#   displayName: tf_test
-#   jobs:
-#   - job: tf_test
-#     displayName: tf_test
-#     steps: 
-#     - task: azurepowershell@5
-#       inputs:
-#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-#         scriptType: 'inlinescript' # 'filepath'
-#         #scriptPath: '/script.ps1'
-#         inline: |
-#
-#           # Set-AzContext -SubscriptionId '105027cd-ce6d-4742-9a67-ba787d5e37b8'
-#
-#           terraform init
-#           terraform plan
-#           # echo "##vso[task.setvariable variable=varname;isoutput=true]varvalue"
-#         #scriptArguments: '-param1 value1 -param2 value2'
-#         errorActionPreference: 'stop' # 'continue' | 'silentlycontinue'
-#         failOnStandardError: false
-#         azurePowerShellVersion:  'latestversion' # 'otherversion'
-#         #preferredAzurePowerShellVersion: '7.1.0'
-#         pwsh: true
-#         workingDirectory: '$(System.DefaultWorkingDirectory)/policyManagement/tf'
-#       displayName: 'tftest'
+variables:
+  workingDirectory: '$(System.DefaultWorkingDirectory)/policyManagement/tf'
 
-- stage: tf_deploy
-  displayName: tf_deploy
+stages:
+# ========================================
+# DEV Environment
+# ========================================
+- stage: Plan_Dev
+  displayName: 'Plan - DEV'
   jobs:
-  - job: tf_deploy
-    displayName: tf_deploy
+  - job: Plan_Dev
+    displayName: 'Terraform Plan - DEV'
     steps: 
     - task: azurepowershell@5
       inputs:
         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'inlinescript' # 'filepath'
-        #scriptPath: '/script.ps1'
+        scriptType: 'inlinescript'
         inline: |
-
-          # Set-AzContext -SubscriptionId '105027cd-ce6d-4742-9a67-ba787d5e37b8'
-
           terraform init
-          terraform apply -auto-approve
-          # echo "##vso[task.setvariable variable=varname;isoutput=true]varvalue"
-        #scriptArguments: '-param1 value1 -param2 value2'
-        errorActionPreference: 'stop' # 'continue' | 'silentlycontinue'
+          terraform plan -var="environment=dev" -out=tfplan-dev
+        errorActionPreference: 'stop'
         failOnStandardError: false
-        azurePowerShellVersion:  'latestversion' # 'otherversion'
-        #preferredAzurePowerShellVersion: '7.1.0'
+        azurePowerShellVersion: 'latestversion'
         pwsh: true
-        workingDirectory: '$(System.DefaultWorkingDirectory)/policyManagement/tf'
-      displayName: 'tf_deploy'
+        workingDirectory: '$(workingDirectory)'
+      displayName: 'Terraform Plan - DEV'
+    
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(workingDirectory)/tfplan-dev'
+        artifact: 'tfplan-dev'
+        publishLocation: 'pipeline'
+      displayName: 'Publish DEV Plan'
+
+- stage: Deploy_Dev
+  displayName: 'Deploy - DEV'
+  dependsOn: Plan_Dev
+  jobs:
+  - deployment: Deploy_Dev
+    displayName: 'Terraform Apply - DEV'
+    environment: 'dev'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: tfplan-dev
+          
+          - task: azurepowershell@5
+            inputs:
+              azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+              scriptType: 'inlinescript'
+              inline: |
+                terraform init
+                terraform apply -auto-approve tfplan-dev
+              errorActionPreference: 'stop'
+              failOnStandardError: false
+              azurePowerShellVersion: 'latestversion'
+              pwsh: true
+              workingDirectory: '$(workingDirectory)'
+            displayName: 'Terraform Apply - DEV'
+
+# ========================================
+# TEST Environment
+# ========================================
+- stage: Plan_Test
+  displayName: 'Plan - TEST'
+  dependsOn: Deploy_Dev
+  jobs:
+  - job: Plan_Test
+    displayName: 'Terraform Plan - TEST'
+    steps: 
+    - task: azurepowershell@5
+      inputs:
+        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+        scriptType: 'inlinescript'
+        inline: |
+          terraform init
+          terraform plan -var="environment=test" -out=tfplan-test
+        errorActionPreference: 'stop'
+        failOnStandardError: false
+        azurePowerShellVersion: 'latestversion'
+        pwsh: true
+        workingDirectory: '$(workingDirectory)'
+      displayName: 'Terraform Plan - TEST'
+    
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(workingDirectory)/tfplan-test'
+        artifact: 'tfplan-test'
+        publishLocation: 'pipeline'
+      displayName: 'Publish TEST Plan'
+
+- stage: Deploy_Test
+  displayName: 'Deploy - TEST'
+  dependsOn: Plan_Test
+  jobs:
+  - deployment: Deploy_Test
+    displayName: 'Terraform Apply - TEST'
+    environment: 'test'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: tfplan-test
+          
+          - task: azurepowershell@5
+            inputs:
+              azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+              scriptType: 'inlinescript'
+              inline: |
+                terraform init
+                terraform apply -auto-approve tfplan-test
+              errorActionPreference: 'stop'
+              failOnStandardError: false
+              azurePowerShellVersion: 'latestversion'
+              pwsh: true
+              workingDirectory: '$(workingDirectory)'
+            displayName: 'Terraform Apply - TEST'
+
+# ========================================
+# NONPROD Environment
+# ========================================
+- stage: Plan_NonProd
+  displayName: 'Plan - NONPROD'
+  dependsOn: Deploy_Test
+  jobs:
+  - job: Plan_NonProd
+    displayName: 'Terraform Plan - NONPROD'
+    steps: 
+    - task: azurepowershell@5
+      inputs:
+        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+        scriptType: 'inlinescript'
+        inline: |
+          terraform init
+          terraform plan -var="environment=nonprod" -out=tfplan-nonprod
+        errorActionPreference: 'stop'
+        failOnStandardError: false
+        azurePowerShellVersion: 'latestversion'
+        pwsh: true
+        workingDirectory: '$(workingDirectory)'
+      displayName: 'Terraform Plan - NONPROD'
+    
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(workingDirectory)/tfplan-nonprod'
+        artifact: 'tfplan-nonprod'
+        publishLocation: 'pipeline'
+      displayName: 'Publish NONPROD Plan'
+
+- stage: Deploy_NonProd
+  displayName: 'Deploy - NONPROD'
+  dependsOn: Plan_NonProd
+  jobs:
+  - deployment: Deploy_NonProd
+    displayName: 'Terraform Apply - NONPROD'
+    environment: 'nonprod'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: tfplan-nonprod
+          
+          - task: azurepowershell@5
+            inputs:
+              azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+              scriptType: 'inlinescript'
+              inline: |
+                terraform init
+                terraform apply -auto-approve tfplan-nonprod
+              errorActionPreference: 'stop'
+              failOnStandardError: false
+              azurePowerShellVersion: 'latestversion'
+              pwsh: true
+              workingDirectory: '$(workingDirectory)'
+            displayName: 'Terraform Apply - NONPROD'
+
+# ========================================
+# PROD Environment
+# ========================================
+- stage: Plan_Prod
+  displayName: 'Plan - PROD'
+  dependsOn: Deploy_NonProd
+  jobs:
+  - job: Plan_Prod
+    displayName: 'Terraform Plan - PROD'
+    steps: 
+    - task: azurepowershell@5
+      inputs:
+        azureSubscription: 'mi-platform-mg-wi-prod-001'
+        scriptType: 'inlinescript'
+        inline: |
+          terraform init
+          terraform plan -var="environment=prod" -out=tfplan-prod
+        errorActionPreference: 'stop'
+        failOnStandardError: false
+        azurePowerShellVersion: 'latestversion'
+        pwsh: true
+        workingDirectory: '$(workingDirectory)'
+      displayName: 'Terraform Plan - PROD'
+    
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(workingDirectory)/tfplan-prod'
+        artifact: 'tfplan-prod'
+        publishLocation: 'pipeline'
+      displayName: 'Publish PROD Plan'
+
+- stage: Deploy_Prod
+  displayName: 'Deploy - PROD'
+  dependsOn: Plan_Prod
+  jobs:
+  - deployment: Deploy_Prod
+    displayName: 'Terraform Apply - PROD'
+    environment: 'prod'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: tfplan-prod
+          
+          - task: azurepowershell@5
+            inputs:
+              azureSubscription: 'mi-platform-mg-wi-prod-001'
+              scriptType: 'inlinescript'
+              inline: |
+                terraform init
+                terraform apply -auto-approve tfplan-prod
+              errorActionPreference: 'stop'
+              failOnStandardError: false
+              azurePowerShellVersion: 'latestversion'
+              pwsh: true
+              workingDirectory: '$(workingDirectory)'
+            displayName: 'Terraform Apply - PROD'
 
 
