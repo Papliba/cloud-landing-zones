@@ -1,0 +1,20 @@
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - policyManagement/tf/**
+
+pool: 'selfhosted'
+
+stages:
+- stage: stage_name
+  displayName: stage_name
+  jobs:
+  - job: job_name
+    displayName: job_name
+    steps: 
+    - script: echo "Hello World"
+      displayName: "Print Hello World"
+
