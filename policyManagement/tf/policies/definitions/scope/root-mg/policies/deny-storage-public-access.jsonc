@@ -1,0 +1,23 @@
+{
+  "policyType": "Custom",
+  "mode": "All",
+  "displayName": "Deny Storage Accounts with Public Access",
+  "description": "This policy denies the creation of storage accounts that allow public blob access.",
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Storage/storageAccounts"
+        },
+        {
+          "field": "Microsoft.Storage/storageAccounts/allowBlobPublicAccess",
+          "equals": "true"
+        }
+      ]
+    },
+    "then": {
+      "effect": "deny"
+    }
+  }
+}

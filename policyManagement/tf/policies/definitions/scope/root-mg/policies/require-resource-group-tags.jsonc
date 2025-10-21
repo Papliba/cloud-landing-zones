@@ -1,0 +1,35 @@
+{
+  "policyType": "Custom",
+  "mode": "All",
+  "displayName": "Require Resource Groups to have Environment Tag",
+  "description": "This policy enforces that all resource groups must have an 'environment' tag with allowed values.",
+  "parameters": {
+    "allowedEnvironments": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Allowed Environments",
+        "description": "List of allowed environment values"
+      },
+      "defaultValue": ["dev", "test", "staging", "prod"]
+    }
+  },
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Resources/resourceGroups"
+        },
+        {
+          "not": {
+            "field": "tags['environment']",
+            "in": "[parameters('allowedEnvironments')]"
+          }
+        }
+      ]
+    },
+    "then": {
+      "effect": "deny"
+    }
+  }
+}

@@ -9,12 +9,58 @@ trigger:
 pool: 'selfhosted'
 
 stages:
-- stage: stage_name
-  displayName: stage_name
+# - stage: tf_test
+#   displayName: tf_test
+#   jobs:
+#   - job: tf_test
+#     displayName: tf_test
+#     steps: 
+#     - task: azurepowershell@5
+#       inputs:
+#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+#         scriptType: 'inlinescript' # 'filepath'
+#         #scriptPath: '/script.ps1'
+#         inline: |
+#
+#           # Set-AzContext -SubscriptionId '105027cd-ce6d-4742-9a67-ba787d5e37b8'
+#
+#           terraform init
+#           terraform plan
+#           # echo "##vso[task.setvariable variable=varname;isoutput=true]varvalue"
+#         #scriptArguments: '-param1 value1 -param2 value2'
+#         errorActionPreference: 'stop' # 'continue' | 'silentlycontinue'
+#         failOnStandardError: false
+#         azurePowerShellVersion:  'latestversion' # 'otherversion'
+#         #preferredAzurePowerShellVersion: '7.1.0'
+#         pwsh: true
+#         workingDirectory: '$(System.DefaultWorkingDirectory)/policyManagement/tf'
+#       displayName: 'tftest'
+
+- stage: tf_deploy
+  displayName: tf_deploy
   jobs:
-  - job: job_name
-    displayName: job_name
+  - job: tf_deploy
+    displayName: tf_deploy
     steps: 
-    - script: echo "Hello World"
-      displayName: "Print Hello World"
+    - task: azurepowershell@5
+      inputs:
+        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+        scriptType: 'inlinescript' # 'filepath'
+        #scriptPath: '/script.ps1'
+        inline: |
+
+          # Set-AzContext -SubscriptionId '105027cd-ce6d-4742-9a67-ba787d5e37b8'
+
+          terraform init
+          terraform apply -auto-approve
+          # echo "##vso[task.setvariable variable=varname;isoutput=true]varvalue"
+        #scriptArguments: '-param1 value1 -param2 value2'
+        errorActionPreference: 'stop' # 'continue' | 'silentlycontinue'
+        failOnStandardError: false
+        azurePowerShellVersion:  'latestversion' # 'otherversion'
+        #preferredAzurePowerShellVersion: '7.1.0'
+        pwsh: true
+        workingDirectory: '$(System.DefaultWorkingDirectory)/policyManagement/tf'
+      displayName: 'tf_deploy'
+
 

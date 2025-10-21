@@ -1,0 +1,24 @@
+{
+  "policyType": "Custom",
+  "mode": "All",
+  "displayName": "Require tags on resources.",
+  "description": "This policy requires that resources have specific tags applied.",
+  "parameters": {
+    "tagName": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Tag Name",
+        "description": "Name of the tag, such as 'environment' or 'costCenter'"
+      }
+    }
+  },
+  "policyRule": {
+    "if": {
+      "field": "[concat('tags[', parameters('tagName'), ']')]",
+      "exists": "false"
+    },
+    "then": {
+      "effect": "deny"
+    }
+  }
+}

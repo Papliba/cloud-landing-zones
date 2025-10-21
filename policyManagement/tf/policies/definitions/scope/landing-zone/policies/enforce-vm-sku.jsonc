@@ -1,0 +1,35 @@
+{
+  "policyType": "Custom",
+  "mode": "All",
+  "displayName": "Enforce Allowed VM SKUs in Landing Zone",
+  "description": "This policy restricts which VM SKUs can be deployed in the landing zone to control costs.",
+  "parameters": {
+    "allowedSKUs": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Allowed VM SKUs",
+        "description": "The list of VM SKUs that can be deployed"
+      },
+      "defaultValue": ["Standard_B2s", "Standard_D2s_v3", "Standard_D4s_v3"]
+    }
+  },
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Compute/virtualMachines"
+        },
+        {
+          "not": {
+            "field": "Microsoft.Compute/virtualMachines/sku.name",
+            "in": "[parameters('allowedSKUs')]"
+          }
+        }
+      ]
+    },
+    "then": {
+      "effect": "deny"
+    }
+  }
+}
