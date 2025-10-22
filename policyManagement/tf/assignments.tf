@@ -1,6 +1,3 @@
-# ========================================
-# Policy Assignments
-# ========================================
 locals {
   all_policy_assignments = flatten([
     for scope_folder in keys(local.mg_mapping) : [

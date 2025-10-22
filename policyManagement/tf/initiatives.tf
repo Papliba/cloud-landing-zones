@@ -1,6 +1,3 @@
-# ========================================
-# Policy Initiatives (Policy Sets)
-# ========================================
 locals {
   all_policy_initiatives = flatten([
     for scope_folder in keys(local.mg_mapping) : [

@@ -1,6 +1,3 @@
-# ========================================
-# Policy Definitions
-# ========================================
 locals {
   all_policy_definitions = flatten([
     for scope_folder in keys(local.mg_mapping) : [

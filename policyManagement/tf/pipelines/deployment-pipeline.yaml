@@ -9,7 +9,7 @@ trigger:
 pool: 'selfhosted'
 
 variables:
-  workingDirectory: '$(System.DefaultWorkingDirectory)/policyManagement/tf'
+  workingDirectory: '$(System.DefaultWorkingDirectory)/policyManagement/tf/'
 
 stages:
 - stage: dev_plan 
@@ -25,361 +25,32 @@ stages:
         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
         scriptType: 'inlineScript'
         inline: |
-          Set-Location -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf"
           terraform init
           terraform validate
-          terraform plan -var="environment=dev" -target=azapi_resource.policy_definitions
+          terraform plan -var="environment=dev"
         errorActionPreference: 'stop'
-        failOnStandardError: false
+        failOnStandardError: true
         azurePowerShellVersion: 'latestVersion'
         pwsh: true
+        workingDirectory: $(workingDirectory)
 
-    # steps:
-    # - checkout: self
-    # - task: AzurePowerShell@5
-    #   displayName: 'Plan and Apply Policy Definitions'
-    #   inputs:
-    #     azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-    #     scriptType: 'inlineScript'
-    #     inline: |
-    #       terraform init
-    #       terraform plan -var="environment=dev" -target=azapi_resource.policy_definitions
-    #       # terraform apply -auto-approve -var="environment=dev" -target=azapi_resource.policy_definitions
-    #     errorActionPreference: 'stop'
-    #     failOnStandardError: false
-    #     azurePowerShellVersion: 'latestVersion'
-    #     pwsh: true
-    #     workingDirectory: $(workingDirectory)
-    #
-
-
-# # ========================================
-# # DEV Environment - Policy Initiatives
-# # ========================================
-# - stage: Deploy_Dev_Initiatives
-#   displayName: 'DEV - Deploy Initiatives'
-#   dependsOn: Deploy_Dev_Definitions
-#   jobs:
-#   - deployment: Deploy
-#     displayName: 'Deploy Policy Initiatives'
-#     environment: 'dev-initiatives'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - checkout: self
-#           - task: AzurePowerShell@5
-#             displayName: 'Plan and Apply Policy Initiatives'
-#             inputs:
-#               azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-#               scriptType: 'inlineScript'
-#               inline: |
-#                 terraform init
-#                 terraform plan -var="environment=dev" -target=azapi_resource.policy_initiatives
-#                 terraform apply -auto-approve -var="environment=dev" -target=azapi_resource.policy_initiatives
-#               errorActionPreference: 'stop'
-#               failOnStandardError: false
-#               azurePowerShellVersion: 'latestVersion'
-#               pwsh: true
-#               workingDirectory: $(workingDirectory)
-#
-# # ========================================
-# # DEV Environment - Policy Assignments
-# # ========================================
-# - stage: Deploy_Dev_Assignments
-#   displayName: 'DEV - Deploy Assignments'
-#   dependsOn: Deploy_Dev_Initiatives
-#   jobs:
-#   - deployment: Deploy
-#     displayName: 'Deploy Policy Assignments'
-#     environment: 'dev-assignments'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - checkout: self
-#           - task: AzurePowerShell@5
-#             displayName: 'Plan and Apply Policy Assignments'
-#             inputs:
-#               azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-#               scriptType: 'inlineScript'
-#               inline: |
-#                 terraform init
-#                 terraform plan -var="environment=dev" -target=azapi_resource.policy_assignments
-#                 terraform apply -auto-approve -var="environment=dev" -target=azapi_resource.policy_assignments
-#               errorActionPreference: 'stop'
-#               failOnStandardError: false
-#               azurePowerShellVersion: 'latestVersion'
-#               pwsh: true
-#               workingDirectory: '$(workingDirectory)'
-#
-# # ========================================
-# # TEST Environment - Policy Definitions
-# # ========================================
-# - stage: Deploy_Test_Definitions
-#   displayName: 'TEST - Deploy Definitions'
-#   dependsOn: Deploy_Dev_Assignments
-#   jobs:
-#   - deployment: Deploy
-#     displayName: 'Deploy Policy Definitions'
-#     environment: 'test-definitions'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - checkout: self
-#           - task: AzurePowerShell@5
-#             displayName: 'Plan and Apply Policy Definitions'
-#             inputs:
-#               azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-#               scriptType: 'inlineScript'
-#               inline: |
-#                 terraform init
-#                 terraform plan -var="environment=test" -target=azapi_resource.policy_definitions
-#                 terraform apply -auto-approve -var="environment=test" -target=azapi_resource.policy_definitions
-#               errorActionPreference: 'stop'
-#               failOnStandardError: false
-#               azurePowerShellVersion: 'latestVersion'
-#               pwsh: true
-#               workingDirectory: '$(workingDirectory)'
-#
-# # ========================================
-# # TEST Environment - Policy Initiatives
-# # ========================================
-# - stage: Deploy_Test_Initiatives
-#   displayName: 'TEST - Deploy Initiatives'
-#   dependsOn: Deploy_Test_Definitions
-#   jobs:
-#   - deployment: Deploy
-#     displayName: 'Deploy Policy Initiatives'
-#     environment: 'test-initiatives'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - checkout: self
-#           - task: AzurePowerShell@5
-#             displayName: 'Plan and Apply Policy Initiatives'
-#             inputs:
-#               azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-#               scriptType: 'inlineScript'
-#               inline: |
-#                 terraform init
-#                 terraform plan -var="environment=test" -target=azapi_resource.policy_initiatives
-#                 terraform apply -auto-approve -var="environment=test" -target=azapi_resource.policy_initiatives
-#               errorActionPreference: 'stop'
-#               failOnStandardError: false
-#               azurePowerShellVersion: 'latestVersion'
-#               pwsh: true
-#               workingDirectory: '$(workingDirectory)'
-#
-# # ========================================
-# # TEST Environment - Policy Assignments
-# # ========================================
-# - stage: Deploy_Test_Assignments
-#   displayName: 'TEST - Deploy Assignments'
-#   dependsOn: Deploy_Test_Initiatives
-#   jobs:
-#   - deployment: Deploy
-#     displayName: 'Deploy Policy Assignments'
-#     environment: 'test-assignments'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - checkout: self
-#           - task: AzurePowerShell@5
-#             displayName: 'Plan and Apply Policy Assignments'
-#             inputs:
-#               azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-#               scriptType: 'inlineScript'
-#               inline: |
-#                 terraform init
-#                 terraform plan -var="environment=test" -target=azapi_resource.policy_assignments
-#                 terraform apply -auto-approve -var="environment=test" -target=azapi_resource.policy_assignments
-#               errorActionPreference: 'stop'
-#               failOnStandardError: false
-#               azurePowerShellVersion: 'latestVersion'
-#               pwsh: true
-#               workingDirectory: '$(workingDirectory)'
-#
-# # ========================================
-# # NONPROD Environment - Policy Definitions
-# # ========================================
-# - stage: Deploy_NonProd_Definitions
-#   displayName: 'NONPROD - Deploy Definitions'
-#   dependsOn: Deploy_Test_Assignments
-#   jobs:
-#   - deployment: Deploy
-#     displayName: 'Deploy Policy Definitions'
-#     environment: 'nonprod-definitions'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - checkout: self
-#           - task: AzurePowerShell@5
-#             displayName: 'Plan and Apply Policy Definitions'
-#             inputs:
-#               azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-#               scriptType: 'inlineScript'
-#               inline: |
-#                 terraform init
-#                 terraform plan -var="environment=nonprod" -target=azapi_resource.policy_definitions
-#                 terraform apply -auto-approve -var="environment=nonprod" -target=azapi_resource.policy_definitions
-#               errorActionPreference: 'stop'
-#               failOnStandardError: false
-#               azurePowerShellVersion: 'latestVersion'
-#               pwsh: true
-#               workingDirectory: '$(workingDirectory)'
-#
-# # ========================================
-# # NONPROD Environment - Policy Initiatives
-# # ========================================
-# - stage: Deploy_NonProd_Initiatives
-#   displayName: 'NONPROD - Deploy Initiatives'
-#   dependsOn: Deploy_NonProd_Definitions
-#   jobs:
-#   - deployment: Deploy
-#     displayName: 'Deploy Policy Initiatives'
-#     environment: 'nonprod-initiatives'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - checkout: self
-#           - task: AzurePowerShell@5
-#             displayName: 'Plan and Apply Policy Initiatives'
-#             inputs:
-#               azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-#               scriptType: 'inlineScript'
-#               inline: |
-#                 terraform init
-#                 terraform plan -var="environment=nonprod" -target=azapi_resource.policy_initiatives
-#                 terraform apply -auto-approve -var="environment=nonprod" -target=azapi_resource.policy_initiatives
-#               errorActionPreference: 'stop'
-#               failOnStandardError: false
-#               azurePowerShellVersion: 'latestVersion'
-#               pwsh: true
-#               workingDirectory: '$(workingDirectory)'
-#
-# # ========================================
-# # NONPROD Environment - Policy Assignments
-# # ========================================
-# - stage: Deploy_NonProd_Assignments
-#   displayName: 'NONPROD - Deploy Assignments'
-#   dependsOn: Deploy_NonProd_Initiatives
-#   jobs:
-#   - deployment: Deploy
-#     displayName: 'Deploy Policy Assignments'
-#     environment: 'nonprod-assignments'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - checkout: self
-#           - task: AzurePowerShell@5
-#             displayName: 'Plan and Apply Policy Assignments'
-#             inputs:
-#               azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-#               scriptType: 'inlineScript'
-#               inline: |
-#                 terraform init
-#                 terraform plan -var="environment=nonprod" -target=azapi_resource.policy_assignments
-#                 terraform apply -auto-approve -var="environment=nonprod" -target=azapi_resource.policy_assignments
-#               errorActionPreference: 'stop'
-#               failOnStandardError: false
-#               azurePowerShellVersion: 'latestVersion'
-#               pwsh: true
-#               workingDirectory: '$(workingDirectory)'
-#
-# # ========================================
-# # PROD Environment - Policy Definitions
-# # ========================================
-# - stage: Deploy_Prod_Definitions
-#   displayName: 'PROD - Deploy Definitions'
-#   dependsOn: Deploy_NonProd_Assignments
-#   jobs:
-#   - deployment: Deploy
-#     displayName: 'Deploy Policy Definitions'
-#     environment: 'prod-definitions'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - checkout: self
-#           - task: AzurePowerShell@5
-#             displayName: 'Plan and Apply Policy Definitions'
-#             inputs:
-#               azureSubscription: 'mi-platform-mg-wi-prod-001'
-#               scriptType: 'inlineScript'
-#               inline: |
-#                 terraform init
-#                 terraform plan -var="environment=prod" -target=azapi_resource.policy_definitions
-#                 terraform apply -auto-approve -var="environment=prod" -target=azapi_resource.policy_definitions
-#               errorActionPreference: 'stop'
-#               failOnStandardError: false
-#               azurePowerShellVersion: 'latestVersion'
-#               pwsh: true
-#               workingDirectory: '$(workingDirectory)'
-#
-# # ========================================
-# # PROD Environment - Policy Initiatives
-# # ========================================
-# - stage: Deploy_Prod_Initiatives
-#   displayName: 'PROD - Deploy Initiatives'
-#   dependsOn: Deploy_Prod_Definitions
-#   jobs:
-#   - deployment: Deploy
-#     displayName: 'Deploy Policy Initiatives'
-#     environment: 'prod-initiatives'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - checkout: self
-#           - task: AzurePowerShell@5
-#             displayName: 'Plan and Apply Policy Initiatives'
-#             inputs:
-#               azureSubscription: 'mi-platform-mg-wi-prod-001'
-#               scriptType: 'inlineScript'
-#               inline: |
-#                 terraform init
-#                 terraform plan -var="environment=prod" -target=azapi_resource.policy_initiatives
-#                 terraform apply -auto-approve -var="environment=prod" -target=azapi_resource.policy_initiatives
-#               errorActionPreference: 'stop'
-#               failOnStandardError: false
-#               azurePowerShellVersion: 'latestVersion'
-#               pwsh: true
-#               workingDirectory: '$(workingDirectory)'
-#
-# # ========================================
-# # PROD Environment - Policy Assignments
-# # ========================================
-# - stage: Deploy_Prod_Assignments
-#   displayName: 'PROD - Deploy Assignments'
-#   dependsOn: Deploy_Prod_Initiatives
-#   jobs:
-#   - deployment: Deploy
-#     displayName: 'Deploy Policy Assignments'
-#     environment: 'prod-assignments'
-#     strategy:
-#       runOnce:
-#         deploy:
-#           steps:
-#           - checkout: self
-#           - task: AzurePowerShell@5
-#             displayName: 'Plan and Apply Policy Assignments'
-#             inputs:
-#               azureSubscription: 'mi-platform-mg-wi-prod-001'
-#               scriptType: 'inlineScript'
-#               inline: |
-#                 terraform init
-#                 terraform plan -var="environment=prod" -target=azapi_resource.policy_assignments
-#                 terraform apply -auto-approve -var="environment=prod" -target=azapi_resource.policy_assignments
-#               errorActionPreference: 'stop'
-#               failOnStandardError: false
-#               azurePowerShellVersion: 'latestVersion'
-#               pwsh: true
-#               workingDirectory: '$(workingDirectory)'
-#
+- stage: dev_deploy
+  displayName: 'dev_deploy'
+  jobs:
+  - job: apply 
+    displayName: 'apply'
+    steps:
+    - checkout: self
+    - task: AzurePowerShell@5
+      displayName: 'apply'
+      inputs:
+        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+        scriptType: 'inlineScript'
+        inline: |
+          terraform init
+          terraform apply -auto-approve -var="environment=dev"
+        errorActionPreference: 'stop'
+        failOnStandardError: true
+        azurePowerShellVersion: 'latestVersion'
+        pwsh: true
+        workingDirectory: $(workingDirectory)
