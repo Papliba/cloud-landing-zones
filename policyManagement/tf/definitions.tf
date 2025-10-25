@@ -40,16 +40,16 @@ resource "azapi_resource" "policy_definitions_name" {
       metadata = {
         category = "General"
       }
-      parameters = {
-        allowedLocations = {
-          type = "Array"
-          metadata = {
-            displayName = "Allowed locations"
-            description = "The list of allowed locations for resources"
-          }
-          defaultValue = ["eastus", "westus"]
-        }
-      }
+      # parameters = {
+      #   allowedLocations = {
+      #     type = "Array"
+      #     metadata = {
+      #       displayName = "Allowed locations"
+      #       description = "The list of allowed locations for resources"
+      #     }
+      #     defaultValue = ["eastus", "westus"]
+      #   }
+      # }
       policyRule = {
         if = {
           field = "location"
@@ -59,9 +59,9 @@ resource "azapi_resource" "policy_definitions_name" {
           effect = "deny"
         }
       }
-      version = "string"
+      version = "1.0.0"
       versions = [
-        "string"
+        "1.0.0"
       ]
     }
   }
