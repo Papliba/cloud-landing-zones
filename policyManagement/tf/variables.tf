@@ -9,21 +9,10 @@ variable "environment" {
   }
 }
 
-locals {
-  # Mapping of folder names to management group ID patterns
-  mg_mapping = {
-    "root-mg"      = "plbtf-${var.environment}"
-    "landing-zone" = "plbtf-landingzone-${var.environment}"
-  }
-}
-
-variable "variableName" {
-  description = "description"
-  type        = string
-  default     = "default"
-
-  validation {
-    condition     = contains(["default", "somethingelse"], var.variableName)
-    error_message = "The error message"
-  }
-}
+# locals {
+#   # Mapping of folder names to management group ID patterns
+#   mg_mapping = {
+#     "root-mg"      = "plbtf-${var.environment}"
+#     "landing-zone" = "plbtf-landingzone-${var.environment}"
+#   }
+# }
