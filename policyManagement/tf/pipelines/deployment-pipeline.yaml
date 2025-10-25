@@ -12,27 +12,27 @@ variables:
   workingDirectory: '$(System.DefaultWorkingDirectory)/policyManagement/tf/'
 
 stages:
-- stage: dev_plan 
-  displayName: 'dev_plan'
-  jobs:
-  - job: plan
-    displayName: 'plan and validate'
-    steps:
-    - checkout: self
-    - task: AzurePowerShell@5
-      displayName: 'plan and validate'
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'inlineScript'
-        inline: |
-          terraform init
-          terraform validate
-          terraform plan -var="environment=dev"
-        errorActionPreference: 'stop'
-        failOnStandardError: true
-        azurePowerShellVersion: 'latestVersion'
-        pwsh: true
-        workingDirectory: $(workingDirectory)
+# - stage: dev_plan 
+#   displayName: 'dev_plan'
+#   jobs:
+#   - job: plan
+#     displayName: 'plan and validate'
+#     steps:
+#     - checkout: self
+#     - task: AzurePowerShell@5
+#       displayName: 'plan and validate'
+#       inputs:
+#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+#         scriptType: 'inlineScript'
+#         inline: |
+#           terraform init
+#           terraform validate
+#           terraform plan -var="environment=dev"
+#         errorActionPreference: 'stop'
+#         failOnStandardError: true
+#         azurePowerShellVersion: 'latestVersion'
+#         pwsh: true
+#         workingDirectory: $(workingDirectory)
 
 - stage: dev_deploy
   displayName: 'dev_deploy'
@@ -48,7 +48,8 @@ stages:
         scriptType: 'inlineScript'
         inline: |
           terraform init
-          terraform apply -auto-approve -var="environment=dev"
+          terraform apply -auto-approve
+          # terraform apply -auto-approve -var="environment=dev"
         errorActionPreference: 'stop'
         failOnStandardError: true
         azurePowerShellVersion: 'latestVersion'

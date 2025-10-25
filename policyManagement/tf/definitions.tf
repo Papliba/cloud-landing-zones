@@ -17,12 +17,52 @@
 #   }
 # }
 
-resource "azapi_resource" "policy_definitions" {
-  for_each  = local.policy_definitions
-  type      = "Microsoft.Authorization/policyDefinitions@2021-06-01"
-  name      = each.value.policy_name
-  parent_id = "/providers/Microsoft.Management/managementGroups/${each.value.mg_id}"
+# resource "azapi_resource" "policy_definitions" {
+#   for_each  = local.policy_definitions
+#   type      = "Microsoft.Authorization/policyDefinitions@2021-06-01"
+#   name      = each.value.policy_name
+#   parent_id = "/providers/Microsoft.Management/managementGroups/${each.value.mg_id}"
+#   body = {
+#     properties = each.value.policy_content
+#   }
+# }
+
+resource "azapi_resource" "policy_definitions_name" {
+  type      = "Microsoft.Authorization/policyDefinitions@2025-03-01"
+  name      = "somename"
+  parent_id = "/providers/Microsoft.Management/managementGroups/plbtf-sandbox-test"
   body = {
-    properties = each.value.policy_content
+    properties = {
+      description = "some description"
+      displayName = "some display name"
+      policyType  = "Custom"
+      mode        = "All"
+      metadata = {
+        category = "General"
+      }
+      parameters = {
+        allowedLocations = {
+          type = "Array"
+          metadata = {
+            displayName = "Allowed locations"
+            description = "The list of allowed locations for resources"
+          }
+          defaultValue = ["eastus", "westus"]
+        }
+      }
+      policyRule = {
+        if = {
+          field = "location"
+          in    = ["eastus", "westus"]
+        }
+        then = {
+          effect = "deny"
+        }
+      }
+      version = "string"
+      versions = [
+        "string"
+      ]
+    }
   }
 }
