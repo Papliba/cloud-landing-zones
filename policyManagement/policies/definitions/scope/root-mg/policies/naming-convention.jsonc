@@ -1,0 +1,51 @@
+{
+  "name": "enforce-naming-convention",
+  "properties": {
+    "displayName": "Enforce Subscription Naming Convention",
+    "description": "This policy enforces naming conventions for Azure subscriptions to ensure consistency across the organization.",
+    "mode": "All",
+    "metadata": {
+      "category": "Naming Convention",
+      "version": "1.0.0",
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy",
+        },
+        "allowedValues": ["Deny", "Audit", "Disabled"],
+        "defaultValue": "Audit",
+      },
+      "namePattern": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Name Pattern",
+          "description": "The regex pattern that subscription names must match. Format: plbtf-<applicationname>-sc-<environment>-<sequencenumber>",
+        },
+        "defaultValue": "^plbtf-[a-z0-9]+-sc-(dev|test|nonprod|prod)-[0-9]{3}$",
+      },
+    },
+    // Policy evaluation rule
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Resources/subscriptions",
+          },
+          {
+            "not": {
+              "field": "name",
+              "match": "[parameters('namePattern')]",
+            },
+          },
+        ],
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+      },
+    },
+  },
+}
