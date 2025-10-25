@@ -16,3 +16,14 @@ locals {
     "landing-zone" = "plbtf-landingzone-${var.environment}"
   }
 }
+
+variable "variableName" {
+  description = "description"
+  type        = string
+  default     = "default"
+
+  validation {
+    condition     = contains(["default", "somethingelse"], var.variableName)
+    error_message = "The error message"
+  }
+}
