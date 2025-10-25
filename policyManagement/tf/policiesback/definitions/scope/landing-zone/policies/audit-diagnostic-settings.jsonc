@@ -8,19 +8,19 @@
       "type": "Array",
       "metadata": {
         "displayName": "Resource Types to Audit",
-        "description": "List of resource types that must have diagnostic settings"
+        "description": "List of resource types that must have diagnostic settings",
       },
       "defaultValue": [
         "Microsoft.Network/virtualNetworks",
         "Microsoft.Compute/virtualMachines",
-        "Microsoft.KeyVault/vaults"
-      ]
-    }
+        "Microsoft.KeyVault/vaults",
+      ],
+    },
   },
   "policyRule": {
     "if": {
       "field": "type",
-      "in": "[parameters('resourceTypes')]"
+      "in": "[parameters('resourceTypes')]",
     },
     "then": {
       "effect": "auditIfNotExists",
@@ -28,9 +28,9 @@
         "type": "Microsoft.Insights/diagnosticSettings",
         "existenceCondition": {
           "field": "Microsoft.Insights/diagnosticSettings/logs.enabled",
-          "equals": "true"
-        }
-      }
-    }
-  }
+          "equals": "true",
+        },
+      },
+    },
+  },
 }
