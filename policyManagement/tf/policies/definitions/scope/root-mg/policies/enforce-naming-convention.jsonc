@@ -27,7 +27,6 @@
         "defaultValue": "^plbtf-[a-z0-9]+-sc-(dev|test|nonprod|prod)-[0-9]{3}$"
       }
     },
-    // Policy evaluation rule
     "policyRule": {
       "if": {
         "allOf": [
