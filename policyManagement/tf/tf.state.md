@@ -1,9 +1,7 @@
-# State Storage and Locking
+# Store state remotely
 
 
 | Link | Status |
 |------|--------|
-| [Manage state](https://developer.hashicorp.com/terraform/language/state) | |
-
-
+| [Store state remotely](https://developer.hashicorp.com/terraform/language/backend) | |
 

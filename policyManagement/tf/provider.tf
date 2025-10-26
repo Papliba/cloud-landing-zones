@@ -13,6 +13,14 @@ terraform {
       version = "~>3.0"
     }
   }
+
+  backend "azurerm" {
+    use_azuread_auth     = true
+    tenant_id            = "tenantid"
+    storage_account_name = "storageaccountname"
+    container_name       = "containername"
+    key                  = "nameoftheblob"
+  }
 }
 
 provider "azurerm" {
