@@ -1,53 +1,27 @@
-resource "azurerm_policy_definition" "enforce_naming_convention" {
-  name                = "enforce-naming-convention"
+locals {
+  # Get all policy definition files from the policies/definitions folder
+  policy_files = fileset("${path.module}/policies/definitions", "*.jsonc")
+
+  # Parse each policy definition file
+  policy_definitions = {
+    for file in local.policy_files :
+    trimsuffix(file, ".jsonc") => jsondecode(file("${path.module}/policies/definitions/${file}"))
+  }
+}
+
+resource "azurerm_policy_definition" "policies" {
+  for_each = local.policy_definitions
+
+  name                = each.value.name
   policy_type         = "Custom"
-  mode                = "All"
+  mode                = each.value.properties.mode
   management_group_id = "/providers/Microsoft.Management/managementGroups/plbtf-sandbox-test"
-  display_name        = "Enforce Subscription Naming Convention"
-  description         = "This policy enforces naming conventions for Azure subscriptions to ensure consistency across the organization."
+  display_name        = each.value.properties.displayName
+  description         = each.value.properties.description
 
-  metadata = jsonencode({
-    category = "Naming Convention"
-    version  = "1.0.0"
-  })
+  metadata = jsonencode(each.value.properties.metadata)
 
-  parameters = jsonencode({
-    effect = {
-      type = "String"
-      metadata = {
-        displayName = "Effect"
-        description = "Enable or disable the execution of the policy"
-      }
-      allowedValues = ["Deny", "Audit", "Disabled"]
-      defaultValue  = "Audit"
-    }
-    namePattern = {
-      type = "String"
-      metadata = {
-        displayName = "Name Pattern"
-        description = "The regex pattern that subscription names must match. Format: plbtf-<applicationname>-sc-<environment>-<sequencenumber>"
-      }
-      defaultValue = "^plbtf-[a-z0-9]+-sc-(dev|test|nonprod|prod)-[0-9]{3}$"
-    }
-  })
+  parameters = jsonencode(each.value.properties.parameters)
 
-  policy_rule = jsonencode({
-    if = {
-      allOf = [
-        {
-          field  = "type"
-          equals = "Microsoft.Resources/subscriptions"
-        },
-        {
-          not = {
-            field = "name"
-            match = "[parameters('namePattern')]"
-          }
-        }
-      ]
-    }
-    then = {
-      effect = "[parameters('effect')]"
-    }
-  })
+  policy_rule = jsonencode(each.value.properties.policyRule)
 }
