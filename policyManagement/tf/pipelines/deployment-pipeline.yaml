@@ -12,27 +12,31 @@ variables:
   workingDirectory: '$(System.DefaultWorkingDirectory)/policyManagement/tf/'
 
 stages:
-# - stage: dev_plan 
-#   displayName: 'dev_plan'
-#   jobs:
-#   - job: plan
-#     displayName: 'plan and validate'
-#     steps:
-#     - checkout: self
-#     - task: AzurePowerShell@5
-#       displayName: 'plan and validate'
-#       inputs:
-#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-#         scriptType: 'inlineScript'
-#         inline: |
-#           terraform init
-#           terraform validate
-#           terraform plan -var="environment=dev"
-#         errorActionPreference: 'stop'
-#         failOnStandardError: true
-#         azurePowerShellVersion: 'latestVersion'
-#         pwsh: true
-#         workingDirectory: $(workingDirectory)
+- stage: dev_plan 
+  displayName: 'dev_plan'
+  jobs:
+  - job: plan
+    displayName: 'plan and validate'
+    steps:
+    - checkout: self
+
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript' # 'scriptPath'
+        # scriptPath: '/pathtoscript'
+        inlineScript: |
+          terraform init
+          terraform validate
+          terraform plan
+          # terraform plan -var="environment=dev"
+        # arguments: # string. Alias: scriptArguments. Script Arguments.
+        workingDirectory: $(workingDirectory)
+        failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
+      displayName: 'apply'
+      env:
+        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY) 
 
 - stage: dev_deploy
   displayName: 'dev_deploy'
@@ -41,17 +45,20 @@ stages:
     displayName: 'apply'
     steps:
     - checkout: self
-    - task: AzurePowerShell@5
-      displayName: 'apply'
+    - task: AzureCLI@2
       inputs:
         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'inlineScript'
-        inline: |
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript' # 'scriptPath'
+        # scriptPath: '/pathtoscript'
+        inlineScript: |
           terraform init
-          terraform apply -auto-approve
+          # terraform apply -auto-approve
           # terraform apply -auto-approve -var="environment=dev"
-        errorActionPreference: 'stop'
-        failOnStandardError: true
-        azurePowerShellVersion: 'latestVersion'
-        pwsh: true
+        # arguments: # string. Alias: scriptArguments. Script Arguments.
         workingDirectory: $(workingDirectory)
+        failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
+      displayName: 'apply'
+      env:
+        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY) 
+

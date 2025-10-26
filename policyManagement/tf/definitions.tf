@@ -27,42 +27,34 @@
 #   }
 # }
 
-resource "azapi_resource" "policy_definitions_name" {
-  type      = "Microsoft.Authorization/policyDefinitions@2025-03-01"
-  name      = "somename"
-  parent_id = "/providers/Microsoft.Management/managementGroups/plbtf-sandbox-test"
-  body = {
-    properties = {
-      description = "some description"
-      displayName = "some display name"
-      policyType  = "Custom"
-      mode        = "All"
-      metadata = {
-        category = "General"
-      }
-      # parameters = {
-      #   allowedLocations = {
-      #     type = "Array"
-      #     metadata = {
-      #       displayName = "Allowed locations"
-      #       description = "The list of allowed locations for resources"
-      #     }
-      #     defaultValue = ["eastus", "westus"]
-      #   }
-      # }
-      policyRule = {
-        if = {
-          field = "location"
-          in    = ["eastus", "westus"]
-        }
-        then = {
-          effect = "deny"
-        }
-      }
-      version = "1.0.0"
-      versions = [
-        "1.0.0"
-      ]
+resource "azurerm_policy_definition" "example" {
+  name                = "somenamezurerm"
+  policy_type         = "Custom"
+  mode                = "All"
+  management_group_id = "/providers/Microsoft.Management/managementGroups/plbtf-sandbox-test"
+  display_name        = "some display name"
+  description         = "some new description"
+  metadata = jsonencode({
+    category = "General"
+  })
+  # parameters = jsonencode({
+  #   allowedLocations = {
+  #     type = "Array"
+  #     metadata = {
+  #       displayName = "Allowed locations"
+  #       description = "The list of allowed locations for resources"
+  #     }
+  #     defaultValue = ["eastus", "westus"]
+  #   }
+  # })
+  policy_rule = jsonencode({
+    if = {
+      field = "location"
+      in    = ["eastus", "westus"]
     }
-  }
+    then = {
+      effect = "deny"
+    }
+  })
+  # version = "1.0.0"
 }
