@@ -12,7 +12,7 @@ variables:
   workingDirectory: '$(System.DefaultWorkingDirectory)/policyManagement/tf/'
 
 stages:
-- stage: dev_plan 
+- stage: dev_plan
   displayName: 'dev_plan'
   jobs:
   - job: plan
@@ -29,22 +29,38 @@ stages:
         inlineScript: |
           terraform init
           terraform validate
-          terraform plan
-          # terraform plan -var="environment=dev"
+          terraform plan -out=tfplan
+          # terraform plan -out=tfplan -var="environment=dev"
         # arguments: # string. Alias: scriptArguments. Script Arguments.
         workingDirectory: $(workingDirectory)
         failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
-      displayName: 'apply'
+      displayName: 'plan'
       env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY) 
+        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(workingDirectory)/tfplan'
+        artifact: 'terraform-plan'
+        publishLocation: 'pipeline'
+      displayName: 'Publish Terraform Plan' 
 
 - stage: dev_deploy
   displayName: 'dev_deploy'
+  dependsOn: dev_plan
   jobs:
-  - job: apply 
+  - job: apply
     displayName: 'apply'
     steps:
     - checkout: self
+
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: 'terraform-plan'
+        targetPath: '$(workingDirectory)'
+      displayName: 'Download Terraform Plan'
+
     - task: AzureCLI@2
       inputs:
         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
@@ -53,8 +69,7 @@ stages:
         # scriptPath: '/pathtoscript'
         inlineScript: |
           terraform init
-          # terraform apply -auto-approve
-          # terraform apply -auto-approve -var="environment=dev"
+          terraform apply -auto-approve tfplan
         # arguments: # string. Alias: scriptArguments. Script Arguments.
         workingDirectory: $(workingDirectory)
         failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
