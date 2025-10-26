@@ -32,8 +32,8 @@ resource "azurerm_policy_definition" "example" {
   policy_type         = "Custom"
   mode                = "All"
   management_group_id = "/providers/Microsoft.Management/managementGroups/plbtf-sandbox-test"
-  display_name        = "some display name azure rm"
-  description         = "some new description"
+  display_name        = "babare"
+  description         = "babare"
   metadata = jsonencode({
     category = "General"
   })
