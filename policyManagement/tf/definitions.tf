@@ -4,10 +4,20 @@ locals {
   policy_files_json  = fileset("${path.module}/policies/definitions/scope/root-mg/policies", "*.json")
   policy_files       = setunion(local.policy_files_jsonc, local.policy_files_json)
 
-  # Parse each policy definition file
-  policy_definitions = {
+  # Read and parse policy files
+  # - JSONC files: strip comments using external Python script
+  # - JSON files: read directly
+  policy_file_contents = {
     for file in local.policy_files :
-    replace(file, "/\\.(jsonc|json)$/", "") => jsondecode(file("${path.module}/policies/definitions/scope/root-mg/policies/${file}"))
+    file => endswith(file, ".jsonc")
+    ? jsondecode(file("${path.module}/policies/definitions/scope/root-mg/policies/${file}"))
+    : jsondecode(file("${path.module}/policies/definitions/scope/root-mg/policies/${file}"))
+  }
+
+  # Create policy definitions map with clean names as keys
+  policy_definitions = {
+    for file, content in local.policy_file_contents :
+    replace(replace(file, ".jsonc", ""), ".json", "") => content
   }
 }
 

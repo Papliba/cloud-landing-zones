@@ -1,0 +1,79 @@
+# Cloud Landing Zones - Project Instructions
+
+## Workflow Preferences
+
+### Git Workflow
+When I ask you to fix an issue or make changes, ALWAYS follow this complete PR workflow:
+
+1. **Create Feature Branch**: Create a new branch with descriptive name (e.g., `fix/policy-syntax`, `feat/new-mgmt-group`)
+2. **Fix/Implement**: Make the necessary code changes
+3. **Commit Changes**: Stage changes and commit with conventional commit message
+4. **Push to Feature Branch**: Push changes to the feature branch
+5. **Create Pull Request**: Create PR to main branch with descriptive title and summary
+6. **Self-Review**: Review the code in the PR and add comments on:
+   - Potential issues or bugs
+   - Performance improvements
+   - Best practice violations
+   - Security concerns
+   - Code quality improvements
+7. **Iterative Improvement**:
+   - Fix all issues identified in review
+   - Comment on PR explaining what was fixed and how
+   - Repeat review and fix cycle until code is perfect
+8. **Merge PR**: Once all issues are resolved and code is perfect, merge the PR to main
+
+**NEVER push directly to main**. Always use this branch-based PR workflow.
+
+### Commit Message Format
+- Use conventional commits: `fix:`, `feat:`, `docs:`, `refactor:`, `test:`, `chore:`
+- Be concise but descriptive
+- Examples:
+  - `fix: correct policy definition syntax in enforce-naming-convention`
+  - `feat: add new management group for security workloads`
+  - `docs: update Azure policy documentation`
+
+### Project Context
+
+**Project Type**: Azure Cloud Landing Zone Infrastructure
+**Primary Technologies**: Terraform, Azure Policy, Azure Management Groups
+**Management Groups**: 45 groups following Azure Landing Zone pattern with "plb" prefix
+**Current Subscription**: plb-platform-nonprod-001
+
+**Key Directories**:
+- `policyManagement/tf/` - Terraform configuration for Azure policies
+- `policyManagement/tf/policies/definitions/scope/` - Policy definition files (JSONC format)
+- `policyManagement/tf/pipelines/` - Deployment pipeline configurations
+
+### Azure-Specific Preferences
+
+- Use Azure CLI (`az`) commands when possible
+- Reference management group hierarchy when working with policies
+- Test policy definitions before deployment
+- Follow Azure naming conventions (lowercase, hyphens for separation)
+
+### Code Style
+
+- **Terraform**: Use 2-space indentation, follow HashiCorp style guide
+- **JSON/JSONC**: Use 2-space indentation
+- **Comments**: Add comments for complex policy logic or infrastructure decisions
+- Prefer descriptive variable names over abbreviations
+
+### Common Tasks
+
+**Build/Deploy**: Check `deployment-pipeline.yaml` for pipeline configuration
+**Policy Management**: Policy definitions are in JSONC format in `policies/definitions/scope/`
+**Testing**: Validate Terraform with `terraform validate` before committing
+
+## Quick Reference
+
+**MCP Servers Installed**:
+- GitHub - for repo operations
+- macOS Automator - for system automation
+- Filesystem - for file operations
+- Memory - for persistent context
+- Microsoft Learn - for Azure documentation lookup
+
+**Current Azure Context**:
+- Tenant: papliba (sunnybharnegmail.onmicrosoft.com)
+- User: sunny.bharne@outlook.com
+- Subscription: plb-platform-nonprod-001
