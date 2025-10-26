@@ -1,11 +1,11 @@
 locals {
-  # Get all policy definition files from the policies/definitions/policies folder
-  policy_files = fileset("${path.module}/policies/definitions/policies", "*.jsonc")
+  # Get all policy definition files from the policies/definitions/scope/root-mg/policies folder
+  policy_files = fileset("${path.module}/policies/definitions/scope/root-mg/policies", "*.jsonc")
 
   # Parse each policy definition file
   policy_definitions = {
     for file in local.policy_files :
-    trimsuffix(file, ".jsonc") => jsondecode(file("${path.module}/policies/definitions/policies/${file}"))
+    trimsuffix(file, ".jsonc") => jsondecode(file("${path.module}/policies/definitions/scope/root-mg/policies/${file}"))
   }
 }
 
