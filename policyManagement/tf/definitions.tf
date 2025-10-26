@@ -27,34 +27,56 @@
 #   }
 # }
 
-resource "azurerm_policy_definition" "example" {
-  name                = "somenamezurerm"
+resource "azurerm_policy_definition" "enforce_naming_convention" {
+  name                = "enforce-naming-convention"
   policy_type         = "Custom"
   mode                = "All"
   management_group_id = "/providers/Microsoft.Management/managementGroups/plbtf-sandbox-test"
-  display_name        = "babare"
-  description         = "babare"
+  display_name        = "Enforce Subscription Naming Convention"
+  description         = "This policy enforces naming conventions for Azure subscriptions to ensure consistency across the organization."
+
   metadata = jsonencode({
-    category = "General"
+    category = "Naming Convention"
+    version  = "1.0.0"
   })
-  # parameters = jsonencode({
-  #   allowedLocations = {
-  #     type = "Array"
-  #     metadata = {
-  #       displayName = "Allowed locations"
-  #       description = "The list of allowed locations for resources"
-  #     }
-  #     defaultValue = ["eastus", "westus"]
-  #   }
-  # })
+
+  parameters = jsonencode({
+    effect = {
+      type = "String"
+      metadata = {
+        displayName = "Effect"
+        description = "Enable or disable the execution of the policy"
+      }
+      allowedValues = ["Deny", "Audit", "Disabled"]
+      defaultValue  = "Audit"
+    }
+    namePattern = {
+      type = "String"
+      metadata = {
+        displayName = "Name Pattern"
+        description = "The regex pattern that subscription names must match. Format: plbtf-<applicationname>-sc-<environment>-<sequencenumber>"
+      }
+      defaultValue = "^plbtf-[a-z0-9]+-sc-(dev|test|nonprod|prod)-[0-9]{3}$"
+    }
+  })
+
   policy_rule = jsonencode({
     if = {
-      field = "location"
-      in    = ["eastus", "westus"]
+      allOf = [
+        {
+          field  = "type"
+          equals = "Microsoft.Resources/subscriptions"
+        },
+        {
+          not = {
+            field = "name"
+            match = "[parameters('namePattern')]"
+          }
+        }
+      ]
     }
     then = {
-      effect = "deny"
+      effect = "[parameters('effect')]"
     }
   })
-  # version = "1.0.0"
 }

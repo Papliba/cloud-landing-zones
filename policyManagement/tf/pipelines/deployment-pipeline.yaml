@@ -76,4 +76,3 @@ stages:
       displayName: 'apply'
       env:
         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY) 
-
