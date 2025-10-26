@@ -16,10 +16,10 @@ terraform {
 
   backend "azurerm" {
     use_azuread_auth     = true
-    tenant_id            = "tenantid"
-    storage_account_name = "storageaccountname"
-    container_name       = "containername"
-    key                  = "nameoftheblob"
+    tenant_id            = "edcdcd05-f72e-4577-a6b4-5c1c367b4deb"
+    storage_account_name = "tfstatefilesstatefiles"
+    container_name       = "tfstatefiles"
+    key                  = "azuretf"
   }
 }
 
