@@ -8,7 +8,7 @@
 
   "properties": {
     // Human-readable name displayed in Azure Portal
-    "displayName": "Enforce Subscription Naming Convention sandbox",
+    "displayName": "Enforce Subscription Naming Convention management",
 
     // Detailed description of what this policy does
     "description": "This policy enforces naming conventions for Azure subscriptions to ensure consistency across the organization.",
