@@ -1,0 +1,45 @@
+{
+  "name": "require-app-gateway-v2",
+
+  "properties": {
+    "displayName": "Require Application Gateway v2 SKU",
+    "description": "This policy requires that all Application Gateways use v2 SKU for improved performance, autoscaling, and zone redundancy features.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Deny"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/applicationGateways"
+          },
+          {
+            "field": "Microsoft.Network/applicationGateways/sku.tier",
+            "notIn": ["Standard_v2", "WAF_v2"]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

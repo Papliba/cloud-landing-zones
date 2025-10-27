@@ -1,0 +1,44 @@
+{
+  "name": "require-azure-defender-enabled",
+
+  "properties": {
+    "displayName": "Require Azure Defender Enabled for Subscriptions",
+    "description": "This policy ensures that Azure Defender (Microsoft Defender for Cloud) is enabled on all subscriptions for advanced threat protection.",
+
+    "mode": "All",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["AuditIfNotExists", "Disabled"],
+        "defaultValue": "AuditIfNotExists"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Resources/subscriptions"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Security/pricings",
+          "existenceCondition": {
+            "field": "Microsoft.Security/pricings/pricingTier",
+            "equals": "Standard"
+          }
+        }
+      }
+    }
+  }
+}

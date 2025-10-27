@@ -1,0 +1,59 @@
+{
+  
+  
+  
+
+  "name": "block-vnet-peering-external-tenants",
+
+  "properties": {
+    "displayName": "Block Virtual Network Peering to External Tenants",
+    "description": "This policy prevents creation of VNet peerings to virtual networks in external Azure AD tenants, maintaining network isolation and security boundaries.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Deny"
+      },
+      "allowedTenantIds": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed Tenant IDs",
+          "description": "List of Azure AD tenant IDs allowed for peering"
+        },
+        "defaultValue": []
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "type",
+            "equals": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+          },
+          {
+            
+            "field": "tags['external-tenant-peering-approved']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

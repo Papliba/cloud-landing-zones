@@ -1,0 +1,52 @@
+{
+  "name": "require-application-insights-webapps",
+
+  "properties": {
+    "displayName": "Require Application Insights for Web Apps",
+    "description": "This policy requires that all web applications have Application Insights configured for application performance monitoring (APM) and diagnostics.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Monitoring",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["AuditIfNotExists", "Disabled"],
+        "defaultValue": "AuditIfNotExists"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Web/sites"
+          },
+          {
+            "field": "kind",
+            "notContains": "functionapp"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/components",
+          "existenceCondition": {
+            "field": "name",
+            "like": "*"
+          }
+        }
+      }
+    }
+  }
+}

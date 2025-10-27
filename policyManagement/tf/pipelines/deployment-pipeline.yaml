@@ -20,59 +20,104 @@ stages:
     steps:
     - checkout: self
 
-    - task: AzureCLI@2
+    - task: PowerShell@2
       inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript' # 'scriptPath'
-        # scriptPath: '/pathtoscript'
-        inlineScript: |
-          terraform init
-          terraform validate
-          terraform plan -out=tfplan
-          # terraform plan -out=tfplan -var="environment=dev"
-        # arguments: # string. Alias: scriptArguments. Script Arguments.
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
-      displayName: 'plan'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+        targetType: 'inline'
+        script: |
+          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+        failOnStderr: false
+      displayName: 'Convert JSONC to JSON'
 
-    - task: PublishPipelineArtifact@1
+    - task: Bash@3
       inputs:
-        targetPath: '$(workingDirectory)/tfplan'
-        artifact: 'terraform-plan'
-        publishLocation: 'pipeline'
-      displayName: 'Publish Terraform Plan' 
+        targetType: 'inline'
+        script: |
+          echo "========================================="
+          echo "  Policy Folder Structure"
+          echo "========================================="
+          echo ""
 
-- stage: dev_deploy
-  displayName: 'dev_deploy'
-  dependsOn: dev_plan
-  jobs:
-  - job: apply
-    displayName: 'apply'
-    steps:
-    - checkout: self
+          POLICIES_DIR="$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions"
 
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'current'
-        artifactName: 'terraform-plan'
-        targetPath: '$(workingDirectory)'
-      displayName: 'Download Terraform Plan'
+          # Display tree structure (fallback to find if tree not available)
+          if command -v tree &> /dev/null; then
+            tree -L 4 "$POLICIES_DIR"
+          else
+            echo "Directory structure:"
+            find "$POLICIES_DIR" -type d | sort | sed 's|'"$POLICIES_DIR"'||' | sed 's|^/||' | sed 's|^|  |'
+            echo ""
+            echo "Files by management group:"
+            find "$POLICIES_DIR" -type f -name "*.json" | sort | sed 's|'"$POLICIES_DIR"'/||'
+          fi
 
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript' # 'scriptPath'
-        # scriptPath: '/pathtoscript'
-        inlineScript: |
-          terraform init
-          terraform apply -auto-approve tfplan
-        # arguments: # string. Alias: scriptArguments. Script Arguments.
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
-      displayName: 'apply'
-      env:
+          echo ""
+          echo "========================================="
+          echo "  File Summary"
+          echo "========================================="
+          echo "Total JSON files:  $(find "$POLICIES_DIR" -type f -name "*.json" | wc -l | xargs)"
+          echo "Total JSONC files: $(find "$POLICIES_DIR" -type f -name "*.jsonc" | wc -l | xargs)"
+          echo ""
+          echo "By type:"
+          echo "  Policy definitions:  $(find "$POLICIES_DIR" -path "*/policies/*.json" | wc -l | xargs) JSON files"
+          echo "  Initiative definitions: $(find "$POLICIES_DIR" -path "*/initiatives/*.json" | wc -l | xargs) JSON files"
+          echo "========================================="
+        workingDirectory: $(System.DefaultWorkingDirectory)
+      displayName: 'Display Policy Folder Structure'
+
+#     - task: AzureCLI@2
+#       inputs:
+#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript' # 'scriptPath'
+#         # scriptPath: '/pathtoscript'
+#         inlineScript: |
+#           terraform init
+#           terraform validate
+#           terraform plan -out=tfplan
+#           # terraform plan -out=tfplan -var="environment=dev"
+#         # arguments: # string. Alias: scriptArguments. Script Arguments.
+#         workingDirectory: $(workingDirectory)
+#         failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
+#       displayName: 'plan'
+#       env:
+#         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+
+#     - task: PublishPipelineArtifact@1
+#       inputs:
+#         targetPath: '$(workingDirectory)/tfplan'
+#         artifact: 'terraform-plan'
+#         publishLocation: 'pipeline'
+#       displayName: 'Publish Terraform Plan' 
+
+# - stage: dev_deploy
+#   displayName: 'dev_deploy'
+#   dependsOn: dev_plan
+#   jobs:
+#   - job: apply
+#     displayName: 'apply'
+#     steps:
+#     - checkout: self
+
+#     - task: DownloadPipelineArtifact@2
+#       inputs:
+#         buildType: 'current'
+#         artifactName: 'terraform-plan'
+#         targetPath: '$(workingDirectory)'
+#       displayName: 'Download Terraform Plan'
+
+#     - task: AzureCLI@2
+#       inputs:
+#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript' # 'scriptPath'
+#         # scriptPath: '/pathtoscript'
+#         inlineScript: |
+#           terraform init
+#           terraform apply -auto-approve tfplan
+#         # arguments: # string. Alias: scriptArguments. Script Arguments.
+#         workingDirectory: $(workingDirectory)
+#         failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
+#       displayName: 'apply'
+#       env:
         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY) 

@@ -1,0 +1,142 @@
+{
+  // Azure Policy Initiative: PLB Network Security Baseline
+  // Purpose: Enforce network security best practices across all resources
+  // This initiative combines NSG policies, firewall requirements, private endpoints, DDoS protection, and VPN security
+
+  "name": "plb-network-security",
+
+  "properties": {
+    "displayName": "PLB Network Security Baseline Initiative",
+    "description": "Comprehensive network security baseline that enforces NSG requirements, firewall policies, private endpoints, DDoS protection, and VPN security controls across all Azure resources.",
+
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+
+    // Parameters that can be configured during initiative assignment
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect for all policies",
+          "description": "Enable or disable the execution of policies in this initiative"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    // List of network security policy definitions included in this initiative
+    "policyDefinitions": [
+      {
+        // Require NSG on all subnets
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/enforce-nsg-on-subnets",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Block RDP and SSH access from internet
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/block-rdp-ssh-from-internet",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Block certain ports in NSGs (high-risk ports)
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/block-certain-ports-nsgs",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require NSG flow logs for monitoring
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-nsg-flow-logs",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require private endpoints for storage accounts
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-private-endpoints-storage",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require DDoS protection on VNets
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-ddos-protection-vnets",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require WAF on Application Gateways
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-waf-on-app-gateways",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require forced tunneling for VPN
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-forced-tunneling-vpn",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Block direct internet connectivity
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/block-direct-internet-connectivity",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Block unrestricted network access
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/block-unrestricted-network-access",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require Azure Firewall for egress traffic
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-azure-firewall-egress",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Block public IP on resources
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/block-public-ip-on-resources",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      }
+    ]
+  }
+}

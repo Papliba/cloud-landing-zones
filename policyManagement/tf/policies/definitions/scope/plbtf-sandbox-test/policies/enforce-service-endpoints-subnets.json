@@ -1,0 +1,57 @@
+{
+  "name": "enforce-service-endpoints-subnets",
+
+  "properties": {
+    "displayName": "Enforce Service Endpoints on Subnets",
+    "description": "This policy requires that subnets have service endpoints configured for Azure PaaS services, improving security and performance.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Disabled"],
+        "defaultValue": "Audit"
+      },
+      "requiredServiceEndpoints": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Required Service Endpoints",
+          "description": "List of required service endpoints"
+        },
+        "defaultValue": ["Microsoft.Storage", "Microsoft.Sql", "Microsoft.KeyVault"]
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/virtualNetworks/subnets"
+          },
+          {
+            "field": "name",
+            "notIn": ["GatewaySubnet", "AzureFirewallSubnet", "AzureBastionSubnet"]
+          },
+          {
+            "field": "tags['service-endpoints-configured']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

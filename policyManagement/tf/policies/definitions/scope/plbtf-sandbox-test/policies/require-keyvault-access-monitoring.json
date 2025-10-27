@@ -1,0 +1,52 @@
+{
+  "name": "require-keyvault-access-monitoring",
+
+  "properties": {
+    "displayName": "Require Monitoring for Key Vault Access",
+    "description": "This policy requires that all Key Vaults have diagnostic settings configured to monitor access patterns and detect potential security threats.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Monitoring",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["AuditIfNotExists", "Disabled"],
+        "defaultValue": "AuditIfNotExists"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.KeyVault/vaults"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/diagnosticSettings",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Insights/diagnosticSettings/logs[*].category",
+                "equals": "AuditEvent"
+              },
+              {
+                "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                "equals": true
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "name": "require-support-level-tag",
+
+  "properties": {
+    "displayName": "Require Support Level Tag on All Resources",
+    "description": "This policy requires that all resources have a support-level tag indicating the support tier (basic/standard/premium/enterprise) for proper support routing.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Tagging",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      },
+      "allowedLevels": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed Support Levels",
+          "description": "Valid support level values"
+        },
+        "defaultValue": ["basic", "standard", "premium", "enterprise"]
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "anyOf": [
+          {
+            "field": "tags['support-level']",
+            "exists": false
+          },
+          {
+            "field": "tags['support-level']",
+            "notIn": "[parameters('allowedLevels')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "require-mfa-service-principals",
+
+  "properties": {
+    "displayName": "Require MFA for Service Principal Access",
+    "description": "This policy audits service principals and applications to ensure multi-factor authentication is enforced for privileged access.",
+
+    "mode": "All",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.ManagedIdentity/userAssignedIdentities"
+          },
+          {
+            "field": "tags['mfa-enabled']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

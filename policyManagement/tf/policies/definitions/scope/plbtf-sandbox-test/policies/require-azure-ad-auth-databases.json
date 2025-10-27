@@ -1,0 +1,49 @@
+{
+  
+  
+  
+
+  "name": "require-azure-ad-auth-databases",
+
+  "properties": {
+    "displayName": "Require Azure AD Authentication for SQL Databases",
+    "description": "This policy requires that Azure SQL servers have Azure AD authentication configured, enforcing centralized identity management and modern authentication methods.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["AuditIfNotExists", "Disabled"],
+        "defaultValue": "AuditIfNotExists"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Sql/servers"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          
+          "type": "Microsoft.Sql/servers/administrators",
+          "existenceCondition": {
+            "field": "Microsoft.Sql/servers/administrators/administratorType",
+            "equals": "ActiveDirectory"
+          }
+        }
+      }
+    }
+  }
+}

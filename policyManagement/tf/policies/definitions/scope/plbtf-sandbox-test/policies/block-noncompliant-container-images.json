@@ -1,0 +1,59 @@
+{
+  "name": "block-noncompliant-container-images",
+
+  "properties": {
+    "displayName": "Block Non-Compliant Container Images",
+    "description": "This policy prevents deployment of container images that do not come from approved registries or have not been scanned for vulnerabilities.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      },
+      "allowedRegistries": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed Container Registries",
+          "description": "List of approved container registries"
+        },
+        "defaultValue": ["plbacrprod.azurecr.io", "mcr.microsoft.com"]
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.ContainerInstance/containerGroups"
+          },
+          {
+            "count": {
+              "field": "Microsoft.ContainerInstance/containerGroups/containers[*]",
+              "where": {
+                "field": "Microsoft.ContainerInstance/containerGroups/containers[*].image",
+                "notLike": "[concat(parameters('allowedRegistries')[*], '/*')]"
+              }
+            },
+            "greater": 0
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

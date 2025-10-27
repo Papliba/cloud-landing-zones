@@ -1,0 +1,45 @@
+{
+  "name": "block-unused-resource-types",
+
+  "properties": {
+    "displayName": "Block Unused or Deprecated Resource Types",
+    "description": "This policy prevents deployment of resource types that are not used in the organization or have been deprecated, reducing management overhead and costs.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Cost Optimization",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Deny"
+      },
+      "blockedTypes": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Blocked Resource Types",
+          "description": "List of resource types that are not allowed"
+        },
+        "defaultValue": ["Microsoft.Blockchain/blockchainMembers", "Microsoft.BotService/botServices", "Microsoft.Quantum/Workspaces"]
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "in": "[parameters('blockedTypes')]"
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

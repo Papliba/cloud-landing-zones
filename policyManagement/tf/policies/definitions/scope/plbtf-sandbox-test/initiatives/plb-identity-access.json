@@ -1,0 +1,88 @@
+{
+  "name": "plb-identity-access",
+  "properties": {
+    "displayName": "PLB Identity and Access Management Initiative",
+    "description": "Enforces identity and access management best practices including managed identities, Azure AD authentication, MFA requirements, and blocking legacy authentication protocols across all Azure resources.",
+    "metadata": {
+      "category": "Identity",
+      "version": "1.0.0"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect for all policies",
+          "description": "Enable or disable the execution of policies in this initiative"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyDefinitions": [
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-managed-identities",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-azure-ad-auth-databases",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/block-legacy-authentication",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-mfa-service-principals",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-azure-ad-integration-aks",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-rbac-keyvaults",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/block-local-accounts-aks",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-azure-ad-only-sql",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      }
+    ]
+  }
+}

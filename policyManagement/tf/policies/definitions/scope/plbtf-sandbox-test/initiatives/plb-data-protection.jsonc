@@ -1,0 +1,142 @@
+{
+  // Azure Policy Initiative: PLB Data Protection and Encryption
+  // Purpose: Enforce data security and encryption across all storage services
+  // This initiative covers encryption at rest, encryption in transit, double encryption, soft delete, and secure transfer requirements
+
+  "name": "plb-data-protection",
+
+  "properties": {
+    "displayName": "PLB Data Protection and Encryption Initiative",
+    "description": "Comprehensive data security initiative that enforces encryption at rest, secure transfer protocols, double encryption for sensitive data, soft delete protection, and secure SFTP access for all storage services.",
+
+    "metadata": {
+      "category": "Data Security",
+      "version": "1.0.0"
+    },
+
+    // Parameters that can be configured during initiative assignment
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect for all policies",
+          "description": "Enable or disable the execution of policies in this initiative"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    // List of data protection and encryption policy definitions
+    "policyDefinitions": [
+      {
+        // Require encryption at rest for all resources
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-encryption-at-rest",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require secure transfer (HTTPS/TLS) for storage accounts
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-secure-transfer-storage",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require double encryption for highly sensitive data
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-double-encryption-storage",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require soft delete on Key Vaults for data recovery
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-soft-delete-keyvaults",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Enforce disk encryption on virtual machines
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/enforce-disk-encryption-vms",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Enforce minimum TLS version 1.2 or higher
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/enforce-minimum-tls-version",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Enforce secure SFTP configuration for storage accounts
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/enforce-secure-sftp-storage",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Block anonymous container access
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/block-anonymous-container-access",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Block public blob access on storage accounts
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/block-public-blob-access",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require lifecycle management for storage optimization
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-lifecycle-management-storage",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require data classification tags for compliance
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-data-classification-tag",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Enforce certificate renewal for Key Vaults
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/enforce-certificate-renewal",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "enforce-function-app-naming",
+
+  "properties": {
+    "displayName": "Enforce Azure Function App Naming Pattern",
+    "description": "This policy enforces naming conventions for Azure Function Apps with organization prefix, environment, and purpose identifiers.",
+
+    "mode": "All",
+
+    "metadata": {
+      "category": "Naming Convention",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Deny", "Audit", "Disabled"],
+        "defaultValue": "Deny"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Web/sites"
+          },
+          {
+            "field": "kind",
+            "contains": "functionapp"
+          },
+          {
+            "not": {
+              "field": "name",
+              "match": "^plb-func-(dev|test|prod)-[a-z0-9]+-[a-z]+-[0-9]{3}$"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

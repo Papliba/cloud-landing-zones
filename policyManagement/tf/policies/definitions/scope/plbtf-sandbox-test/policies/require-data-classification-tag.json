@@ -1,0 +1,53 @@
+{
+  "name": "require-data-classification-tag",
+
+  "properties": {
+    "displayName": "Require Data Classification Tag on All Resources",
+    "description": "This policy requires that all resources have a data-classification tag (public/internal/confidential/restricted) for proper data handling and security controls.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Tagging",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      },
+      "allowedClassifications": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed Classifications",
+          "description": "List of valid data classification values"
+        },
+        "defaultValue": ["public", "internal", "confidential", "restricted"]
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "anyOf": [
+          {
+            "field": "tags['data-classification']",
+            "exists": false
+          },
+          {
+            "field": "tags['data-classification']",
+            "notIn": "[parameters('allowedClassifications')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

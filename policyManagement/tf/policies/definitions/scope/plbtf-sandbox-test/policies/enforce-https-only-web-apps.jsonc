@@ -1,0 +1,51 @@
+{
+  // Azure Policy Definition: Enforce HTTPS Only for Web Apps
+  // Purpose: Ensure all web applications use secure HTTPS connections
+  // This protects data in transit and prevents man-in-the-middle attacks
+
+  "name": "enforce-https-only-web-apps",
+
+  "properties": {
+    "displayName": "Enforce HTTPS Only for Web Apps",
+    "description": "This policy requires that all Azure App Services and Function Apps use HTTPS only, rejecting insecure HTTP connections to protect data in transit.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Deny"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            // Target App Services (includes web apps and function apps)
+            "field": "type",
+            "equals": "Microsoft.Web/sites"
+          },
+          {
+            // Check if HTTPS only is not enabled
+            "field": "Microsoft.Web/sites/httpsOnly",
+            "notEquals": true
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  // Azure Policy Definition: Require Reserved Instances for Production VMs
+  // Purpose: Audit production VMs to identify cost savings opportunities
+  // Reserved instances can save up to 72% compared to pay-as-you-go pricing
+
+  "name": "require-reserved-instances-prod",
+
+  "properties": {
+    "displayName": "Audit Production VMs for Reserved Instance Opportunities",
+    "description": "This policy audits production VMs that could benefit from reserved instances, helping identify cost optimization opportunities.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Cost Optimization",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            // Target virtual machines
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            // Production environment
+            "field": "tags['environment']",
+            "equals": "prod"
+          },
+          {
+            // No reserved instance tag
+            "field": "tags['reserved-instance']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

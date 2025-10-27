@@ -1,0 +1,51 @@
+{
+  
+  
+  
+
+  "name": "enforce-ip-restrictions-storage",
+
+  "properties": {
+    "displayName": "Enforce IP Restrictions on Storage Accounts",
+    "description": "This policy requires that storage accounts have network rules configured to restrict access to specific IP addresses or virtual networks only.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "type",
+            "equals": "Microsoft.Storage/storageAccounts"
+          },
+          {
+            
+            "field": "Microsoft.Storage/storageAccounts/networkAcls.defaultAction",
+            "equals": "Allow"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

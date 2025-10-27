@@ -1,0 +1,67 @@
+{
+  // Azure Policy Definition: Block Legacy Authentication Protocols
+  // Purpose: Prevent use of outdated and insecure authentication methods
+  // Targets: TLS 1.0, TLS 1.1, and other deprecated protocols
+
+  "name": "block-legacy-authentication",
+
+  "properties": {
+    "displayName": "Block Legacy Authentication Protocols",
+    "description": "This policy blocks the use of legacy authentication protocols including TLS 1.0 and 1.1, enforcing modern security standards.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Deny"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "anyOf": [
+          {
+            // Block TLS 1.0 and 1.1 on storage accounts
+            "allOf": [
+              {
+                "field": "type",
+                "equals": "Microsoft.Storage/storageAccounts"
+              },
+              {
+                "field": "Microsoft.Storage/storageAccounts/minimumTlsVersion",
+                "notIn": ["TLS1_2", "TLS1_3"]
+              }
+            ]
+          },
+          {
+            // Block TLS 1.0 and 1.1 on App Services
+            "allOf": [
+              {
+                "field": "type",
+                "equals": "Microsoft.Web/sites/config"
+              },
+              {
+                "field": "Microsoft.Web/sites/config/minTlsVersion",
+                "notIn": ["1.2", "1.3"]
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

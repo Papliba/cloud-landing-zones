@@ -1,0 +1,55 @@
+{
+  // Azure Policy Definition: Enforce Azure Container Registry Naming Convention
+  // Purpose: Standardize ACR names across the organization
+  // Pattern: plbacr<environment><purpose><sequence> (no hyphens, alphanumeric only)
+  // Note: ACR names must be globally unique and cannot contain hyphens
+
+  "name": "enforce-acr-naming-convention",
+
+  "properties": {
+    "displayName": "Enforce Azure Container Registry Naming Convention",
+    "description": "This policy enforces naming standards for Azure Container Registries. ACR names must be globally unique and can only contain alphanumeric characters.",
+
+    "mode": "All",
+
+    "metadata": {
+      "category": "Naming Convention",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Deny", "Audit", "Disabled"],
+        "defaultValue": "Deny"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            // Target container registries
+            "field": "type",
+            "equals": "Microsoft.ContainerRegistry/registries"
+          },
+          {
+            // Validate naming: plbacr{env}{purpose}{seq}
+            // Example: plbacrprodshared001
+            "not": {
+              "field": "name",
+              "match": "^plbacr(dev|test|prod)[a-z0-9]{3,15}$"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

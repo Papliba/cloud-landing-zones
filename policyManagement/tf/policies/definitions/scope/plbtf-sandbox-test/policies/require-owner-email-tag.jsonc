@@ -1,0 +1,83 @@
+{
+  // Azure Policy Definition: Require Owner/Contact Email Tag
+  // Purpose: Ensure all resources have an owner for accountability and communication
+  // This is essential for resource lifecycle management and incident response
+
+  "name": "require-owner-email-tag",
+
+  "properties": {
+    "displayName": "Require Owner Contact Email Tag on All Resources",
+    "description": "This policy requires that all resources have an owner or contact-email tag for accountability, lifecycle management, and incident response communication.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Tagging",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "anyOf": [
+          {
+            // Neither owner nor contact-email tag exists
+            "allOf": [
+              {
+                "field": "tags['owner']",
+                "exists": false
+              },
+              {
+                "field": "tags['contact-email']",
+                "exists": false
+              }
+            ]
+          },
+          {
+            // Tags exist but are empty
+            "allOf": [
+              {
+                "anyOf": [
+                  {
+                    "field": "tags['owner']",
+                    "equals": ""
+                  },
+                  {
+                    "field": "tags['owner']",
+                    "exists": false
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "field": "tags['contact-email']",
+                    "equals": ""
+                  },
+                  {
+                    "field": "tags['contact-email']",
+                    "exists": false
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "name": "require-diagnostic-settings-all-resources",
+
+  "properties": {
+    "displayName": "Require Diagnostic Settings on All Resources",
+    "description": "This policy requires that all resources have diagnostic settings configured to send logs and metrics to Log Analytics workspace.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Monitoring",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["AuditIfNotExists", "Disabled"],
+        "defaultValue": "AuditIfNotExists"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "in": [
+          "Microsoft.Compute/virtualMachines",
+          "Microsoft.Storage/storageAccounts",
+          "Microsoft.Network/networkSecurityGroups",
+          "Microsoft.KeyVault/vaults",
+          "Microsoft.Sql/servers/databases"
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/diagnosticSettings",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Insights/diagnosticSettings/logs.enabled",
+                "equals": true
+              },
+              {
+                "field": "Microsoft.Insights/diagnosticSettings/metrics.enabled",
+                "equals": true
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

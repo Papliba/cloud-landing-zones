@@ -1,0 +1,56 @@
+{
+  
+  
+  
+
+  "name": "block-premium-storage-dev",
+
+  "properties": {
+    "displayName": "Block Premium Storage in Development Environments",
+    "description": "This policy prevents use of premium storage SKUs in development environments, reducing costs while maintaining adequate performance for dev workloads.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Cost Optimization",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Deny"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "type",
+            "equals": "Microsoft.Storage/storageAccounts"
+          },
+          {
+            
+            "field": "tags['environment']",
+            "in": ["dev", "sandbox"]
+          },
+          {
+            
+            "field": "Microsoft.Storage/storageAccounts/sku.name",
+            "in": ["Premium_LRS", "Premium_ZRS"]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

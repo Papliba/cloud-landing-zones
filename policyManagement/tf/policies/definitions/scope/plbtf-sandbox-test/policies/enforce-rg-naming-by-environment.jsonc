@@ -1,0 +1,54 @@
+{
+  // Azure Policy Definition: Enforce Resource Group Naming by Environment
+  // Purpose: Ensures resource groups follow environment-specific naming patterns
+  // Pattern: plb-rg-<environment>-<application>-<region>-<sequence>
+
+  "name": "enforce-rg-naming-by-environment",
+
+  "properties": {
+    "displayName": "Enforce Resource Group Naming Convention by Environment",
+    "description": "This policy enforces naming conventions for resource groups based on environment (dev, test, prod) to ensure organizational consistency.",
+
+    // Mode "All" applies to all resource types
+    "mode": "All",
+
+    "metadata": {
+      "category": "Naming Convention",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Deny", "Audit", "Disabled"],
+        "defaultValue": "Deny"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            // Target resource groups
+            "field": "type",
+            "equals": "Microsoft.Resources/resourceGroups"
+          },
+          {
+            // Name must match pattern: plb-rg-{env}-{app}-{region}-{seq}
+            "not": {
+              "field": "name",
+              "match": "^plb-rg-(dev|test|prod)-[a-z0-9]+-[a-z]+-[0-9]{3}$"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}
