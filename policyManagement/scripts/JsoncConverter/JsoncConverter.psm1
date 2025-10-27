@@ -83,8 +83,8 @@ function Convert-JsoncToJson {
         }
 
         if (-not $files) {
-            Write-Host "`n⚠️  No JSONC files found in: $Path" -ForegroundColor Yellow
-            Write-Host "   Skipping conversion step`n" -ForegroundColor Gray
+            Write-Host "`nWARNING: No JSONC files found in: $Path" -ForegroundColor Yellow
+            Write-Host "         Skipping conversion step`n" -ForegroundColor Gray
             return
         }
 
@@ -94,8 +94,8 @@ function Convert-JsoncToJson {
         Write-Host "║               JSONC TO JSON CONVERSION PROCESS                             ║" -ForegroundColor Cyan
         Write-Host "╚════════════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "📁 Source Path: $Path" -ForegroundColor White
-        Write-Host "📊 Files Found: $($files.Count) JSONC file(s)" -ForegroundColor White
+        Write-Host "Source Path: $Path" -ForegroundColor White
+        Write-Host "Files Found: $($files.Count) JSONC file(s)" -ForegroundColor White
         Write-Host ""
         Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
         Write-Host ""
@@ -112,7 +112,7 @@ function Convert-JsoncToJson {
                 $relativePath = $file.FullName.Replace($Path, "").TrimStart('\', '/')
 
                 Write-Host "[$currentFile/$($files.Count)] " -NoNewline -ForegroundColor DarkCyan
-                Write-Host "🔄 Converting: " -NoNewline -ForegroundColor Cyan
+                Write-Host "Converting: " -NoNewline -ForegroundColor Cyan
                 Write-Host "$relativePath" -ForegroundColor White
 
                 $jsoncContent = Get-Content -Path $file.FullName -Raw -Encoding UTF8
@@ -123,10 +123,10 @@ function Convert-JsoncToJson {
                 try {
                     $null = $jsonContent | ConvertFrom-Json -ErrorAction Stop
                     $isValid = $true
-                    Write-Host "    ✅ Validated" -ForegroundColor Green -NoNewline
+                    Write-Host "    [OK] Validated" -ForegroundColor Green -NoNewline
                 }
                 catch {
-                    Write-Host "    ⚠️  Validation Warning: $($_.Exception.Message)" -ForegroundColor Yellow
+                    Write-Host "    [WARN] Validation Warning: $($_.Exception.Message)" -ForegroundColor Yellow
                 }
 
                 # Save JSON file
@@ -144,17 +144,17 @@ function Convert-JsoncToJson {
 
                 if ($isValid) {
                     Write-Host " | " -NoNewline -ForegroundColor DarkGray
-                    Write-Host "💾 Saved" -ForegroundColor Green
+                    Write-Host "Saved" -ForegroundColor Green
                 }
                 else {
-                    Write-Host "    💾 Saved (with warnings)" -ForegroundColor Yellow
+                    Write-Host "    [WARN] Saved (with warnings)" -ForegroundColor Yellow
                 }
 
                 $successCount++
             }
             catch {
                 $failCount++
-                Write-Host "    ❌ Failed: $($_.Exception.Message)" -ForegroundColor Red
+                Write-Host "    [ERROR] Failed: $($_.Exception.Message)" -ForegroundColor Red
             }
 
             # Add spacing between files

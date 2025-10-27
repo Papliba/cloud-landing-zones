@@ -50,35 +50,35 @@ stages:
           # Calculate converted files (JSON files that have corresponding JSONC)
           CONVERTED_FILES=$(find "$POLICIES_DIR" -name "*.jsonc" | wc -l | xargs)
 
-          echo "📊 CONVERSION RESULTS"
+          echo "CONVERSION RESULTS"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "  ✅ JSONC files converted to JSON: $CONVERTED_FILES"
-          echo "  📄 Total JSON files available:    $TOTAL_JSON"
-          echo "  📝 Source JSONC files:            $TOTAL_JSONC"
+          echo "  [OK] JSONC files converted to JSON: $CONVERTED_FILES"
+          echo "  Total JSON files available:         $TOTAL_JSON"
+          echo "  Source JSONC files:                 $TOTAL_JSONC"
           echo ""
 
-          echo "📋 POLICY INVENTORY"
+          echo "POLICY INVENTORY"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "  🔒 Policy Definitions:       $POLICY_JSON files"
-          echo "  📦 Initiative Definitions:   $INITIATIVE_JSON files"
+          echo "  Policy Definitions:       $POLICY_JSON files"
+          echo "  Initiative Definitions:   $INITIATIVE_JSON files"
           echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "  📊 Total Governance Assets:  $(($POLICY_JSON + $INITIATIVE_JSON)) definitions"
+          echo "  Total Governance Assets:  $(($POLICY_JSON + $INITIATIVE_JSON)) definitions"
           echo ""
 
           # List management groups
-          echo "🏢 DEPLOYMENT SCOPE (Management Groups)"
+          echo "DEPLOYMENT SCOPE (Management Groups)"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           for mgdir in $(find "$POLICIES_DIR/scope" -maxdepth 1 -type d | tail -n +2 | sort); do
             mgname=$(basename "$mgdir")
             policies=$(find "$mgdir/policies" -name "*.json" 2>/dev/null | wc -l | xargs)
             initiatives=$(find "$mgdir/initiatives" -name "*.json" 2>/dev/null | wc -l | xargs)
-            echo "  📍 $mgname"
+            echo "  $mgname"
             echo "     └─ Policies: $policies | Initiatives: $initiatives"
           done
           echo ""
 
           # Policy categories breakdown (if we can parse JSON)
-          echo "📁 POLICY CATEGORIES"
+          echo "POLICY CATEGORIES"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
           # Count by category (extract from metadata)
@@ -86,32 +86,14 @@ stages:
 
           if [ -n "$categories" ]; then
             echo "$categories" | while read count category; do
-              # Format with icons based on category
-              case "$category" in
-                *Security*) icon="🔒" ;;
-                *Cost*|*Management*) icon="💰" ;;
-                *Network*) icon="🌐" ;;
-                *Governance*) icon="📋" ;;
-                *Monitoring*) icon="📊" ;;
-                *Compliance*) icon="✅" ;;
-                *Identity*) icon="👤" ;;
-                *Storage*) icon="💾" ;;
-                *Compute*) icon="🖥️" ;;
-                *Container*) icon="📦" ;;
-                *Data*) icon="📁" ;;
-                *Environment*) icon="🌍" ;;
-                *Naming*) icon="🏷️" ;;
-                *Tagging*) icon="🏷️" ;;
-                *) icon="📄" ;;
-              esac
-              printf "  %s %-25s %3d policies\n" "$icon" "$category" "$count"
+              printf "  %-30s %3d policies\n" "$category" "$count"
             done
           else
             echo "  Unable to parse categories (jq not available)"
           fi
           echo ""
 
-          echo "✅ VALIDATION STATUS"
+          echo "VALIDATION STATUS"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
           # Validate JSON files
@@ -119,19 +101,19 @@ stages:
           echo "  Validating JSON files..."
           for jsonfile in $(find "$POLICIES_DIR" -name "*.json" -type f); do
             if ! jq -e . "$jsonfile" >/dev/null 2>&1; then
-              echo "  ❌ Invalid: $(basename $jsonfile)"
+              echo "  [ERROR] Invalid: $(basename $jsonfile)"
               invalid_count=$((invalid_count + 1))
             fi
           done
 
           if [ $invalid_count -eq 0 ]; then
-            echo "  ✅ All $TOTAL_JSON JSON files are valid"
+            echo "  [OK] All $TOTAL_JSON JSON files are valid"
           else
-            echo "  ⚠️  Found $invalid_count invalid JSON file(s)"
+            echo "  [WARN] Found $invalid_count invalid JSON file(s)"
           fi
           echo ""
 
-          echo "🚀 READY FOR DEPLOYMENT"
+          echo "READY FOR DEPLOYMENT"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "  All JSONC files have been converted to JSON format"
           echo "  Terraform will deploy policies to their respective management groups"
