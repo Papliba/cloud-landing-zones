@@ -19,13 +19,13 @@ resource "azurerm_management_group_policy_set_definition" "initiatives" {
   metadata            = jsonencode(each.value.content.properties.metadata)
   parameters          = jsonencode(each.value.content.properties.parameters)
   management_group_id = each.value.management_group_name
-
   dynamic "policy_definition_reference" {
     for_each = each.value.content.properties.policyDefinitions
     content {
       policy_definition_id = policy_definition_reference.value.policyDefinitionId
-      reference_id        = policy_definition_reference.value.policyDefinitionReferenceId
-      parameter_values    = jsonencode(policy_definition_reference.value.parameters)
+      reference_id         = policy_definition_reference.value.policyDefinitionReferenceId
+      parameter_values     = jsonencode(policy_definition_reference.value.parameters)
     }
   }
+  depends_on = [azurerm_policy_definition.definitions]
 }

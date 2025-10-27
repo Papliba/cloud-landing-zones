@@ -10,7 +10,7 @@ locals {
   }
 }
 
-resource "azurerm_policy_definition" "policies" {
+resource "azurerm_policy_definition" "definitions" {
   for_each            = local.policy_definitions
   name                = each.value.content.name
   policy_type         = "Custom"
