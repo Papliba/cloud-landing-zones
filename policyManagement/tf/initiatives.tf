@@ -22,11 +22,13 @@ locals {
 resource "azurerm_policy_set_definition" "initiatives" {
   for_each = local.initiative_definitions
 
-  name                = each.value.content.name
-  policy_type         = "Custom"
-  # management_group_id = each.value.management_group_id
-  display_name        = each.value.content.properties.displayName
-  description         = each.value.content.properties.description
+  name         = each.value.content.name
+  policy_type  = "Custom"
+  display_name = each.value.content.properties.displayName
+  description  = each.value.content.properties.description
+
+  # Temporarily hardcoded for testing - using full resource ID format
+  management_group_id = "/providers/Microsoft.Management/managementGroups/plbtf-sandbox-test"
 
   metadata = jsonencode(each.value.content.properties.metadata)
 

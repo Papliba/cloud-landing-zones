@@ -20,14 +20,16 @@ locals {
 }
 
 resource "azurerm_policy_definition" "policies" {
-  for_each            = local.policy_definitions
-  name                = each.value.content.name
-  policy_type         = "Custom"
-  mode                = each.value.content.properties.mode
-  management_group_id = each.value.management_group_id
-  display_name        = each.value.content.properties.displayName
-  description         = each.value.content.properties.description
-  metadata            = jsonencode(each.value.content.properties.metadata)
-  parameters          = jsonencode(each.value.content.properties.parameters)
-  policy_rule         = jsonencode(each.value.content.properties.policyRule)
+  for_each     = local.policy_definitions
+  name         = each.value.content.name
+  policy_type  = "Custom"
+  mode         = each.value.content.properties.mode
+  display_name = each.value.content.properties.displayName
+  description  = each.value.content.properties.description
+  metadata     = jsonencode(each.value.content.properties.metadata)
+  parameters   = jsonencode(each.value.content.properties.parameters)
+  policy_rule  = jsonencode(each.value.content.properties.policyRule)
+
+  # Temporarily hardcoded for testing - using full resource ID format
+  management_group_id = "/providers/Microsoft.Management/managementGroups/plbtf-sandbox-test"
 }
