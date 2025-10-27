@@ -32,14 +32,12 @@
       "if": {
         "allOf": [
           {
-            // Target blob containers
             "field": "type",
-            "equals": "Microsoft.Storage/storageAccounts/blobServices/containers"
+            "equals": "Microsoft.Storage/storageAccounts"
           },
           {
-            // Check if public access is enabled
-            "field": "Microsoft.Storage/storageAccounts/blobServices/containers/publicAccess",
-            "notEquals": "None"
+            "field": "Microsoft.Storage/storageAccounts/allowBlobPublicAccess",
+            "notEquals": false
           }
         ]
       },

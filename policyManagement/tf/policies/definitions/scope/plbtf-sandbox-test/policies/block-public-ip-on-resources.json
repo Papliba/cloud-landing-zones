@@ -42,6 +42,17 @@
           {
             "field": "tags['allowed-public-ip']",
             "notEquals": "true"
+          },
+          {
+            "count": {
+              "value": "[parameters('excludedResourceTypes')]",
+              "name": "excludedType",
+              "where": {
+                "field": "Microsoft.Network/publicIPAddresses/ipConfiguration.id",
+                "contains": "[current('excludedType')]"
+              }
+            },
+            "equals": 0
           }
         ]
       },

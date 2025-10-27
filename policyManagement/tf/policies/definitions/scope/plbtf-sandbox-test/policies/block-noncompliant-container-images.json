@@ -43,8 +43,15 @@
             "count": {
               "field": "Microsoft.ContainerInstance/containerGroups/containers[*]",
               "where": {
-                "field": "Microsoft.ContainerInstance/containerGroups/containers[*].image",
-                "notLike": "[concat(parameters('allowedRegistries')[*], '/*')]"
+                "count": {
+                  "value": "[parameters('allowedRegistries')]",
+                  "name": "allowedRegistry",
+                  "where": {
+                    "field": "Microsoft.ContainerInstance/containerGroups/containers[*].image",
+                    "like": "[concat(current('allowedRegistry'), '/*')]"
+                  }
+                },
+                "equals": 0
               }
             },
             "greater": 0
