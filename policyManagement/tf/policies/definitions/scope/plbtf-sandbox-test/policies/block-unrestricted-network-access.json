@@ -1,0 +1,82 @@
+{
+  
+  
+  
+
+  "name": "block-unrestricted-network-access",
+
+  "properties": {
+    "displayName": "Block Unrestricted Inbound Network Access",
+    "description": "This policy prevents creation of NSG rules that allow inbound traffic from any source (*) on any port, enforcing principle of least privilege.",
+
+    "mode": "All",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Deny"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "type",
+            "equals": "Microsoft.Network/networkSecurityGroups/securityRules"
+          },
+          {
+            
+            "field": "Microsoft.Network/networkSecurityGroups/securityRules/direction",
+            "equals": "Inbound"
+          },
+          {
+            
+            "field": "Microsoft.Network/networkSecurityGroups/securityRules/access",
+            "equals": "Allow"
+          },
+          {
+            
+            "anyOf": [
+              {
+                "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefix",
+                "in": ["*", "Internet"]
+              },
+              {
+                "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefixes[*]",
+                "in": ["*", "Internet"]
+              }
+            ]
+          },
+          {
+            
+            "anyOf": [
+              {
+                "field": "Microsoft.Network/networkSecurityGroups/securityRules/destinationPortRange",
+                "equals": "*"
+              },
+              {
+                "field": "Microsoft.Network/networkSecurityGroups/securityRules/destinationPortRanges[*]",
+                "equals": "*"
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

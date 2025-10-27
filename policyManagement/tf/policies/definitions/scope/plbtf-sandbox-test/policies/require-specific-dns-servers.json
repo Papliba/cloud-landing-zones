@@ -1,0 +1,70 @@
+{
+  
+  
+  
+
+  "name": "require-specific-dns-servers",
+
+  "properties": {
+    "displayName": "Require Specific DNS Servers on Virtual Networks",
+    "description": "This policy requires that all virtual networks use the organization's specified DNS servers for consistent name resolution and Active Directory integration.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      },
+      "allowedDnsServers": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed DNS Servers",
+          "description": "List of approved DNS server IP addresses"
+        },
+        "defaultValue": ["10.0.0.4", "10.0.0.5"]
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "type",
+            "equals": "Microsoft.Network/virtualNetworks"
+          },
+          {
+            
+            "field": "Microsoft.Network/virtualNetworks/dhcpOptions.dnsServers",
+            "exists": true
+          },
+          {
+            
+            "count": {
+              "field": "Microsoft.Network/virtualNetworks/dhcpOptions.dnsServers[*]",
+              "where": {
+                "field": "Microsoft.Network/virtualNetworks/dhcpOptions.dnsServers[*]",
+                "notIn": "[parameters('allowedDnsServers')]"
+              }
+            },
+            "greater": 0
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

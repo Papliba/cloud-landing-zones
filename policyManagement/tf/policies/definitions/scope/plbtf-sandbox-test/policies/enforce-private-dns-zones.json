@@ -1,0 +1,51 @@
+{
+  
+  
+  
+
+  "name": "enforce-private-dns-zones",
+
+  "properties": {
+    "displayName": "Enforce Private DNS Zones for Private Endpoints",
+    "description": "This policy requires that private DNS zones are configured for private endpoints, ensuring proper name resolution for privately accessed Azure services.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "type",
+            "equals": "Microsoft.Network/privateEndpoints"
+          },
+          {
+            
+            "field": "tags['private-dns-configured']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

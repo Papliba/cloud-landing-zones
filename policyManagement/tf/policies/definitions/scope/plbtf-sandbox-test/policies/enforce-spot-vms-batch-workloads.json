@@ -1,0 +1,56 @@
+{
+  
+  
+  
+
+  "name": "enforce-spot-vms-batch-workloads",
+
+  "properties": {
+    "displayName": "Audit Batch Workloads for Spot VM Opportunities",
+    "description": "This policy audits VMs tagged for batch processing to identify opportunities to use lower-cost Spot instances instead of regular VMs.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Cost Optimization",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            
+            "field": "tags['workload-type']",
+            "in": ["batch", "background-processing", "analytics"]
+          },
+          {
+            
+            "field": "Microsoft.Compute/virtualMachines/priority",
+            "notEquals": "Spot"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

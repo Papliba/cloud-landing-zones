@@ -1,0 +1,56 @@
+{
+  
+  
+  
+
+  "name": "require-reserved-instances-prod",
+
+  "properties": {
+    "displayName": "Audit Production VMs for Reserved Instance Opportunities",
+    "description": "This policy audits production VMs that could benefit from reserved instances, helping identify cost optimization opportunities.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Cost Optimization",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            
+            "field": "tags['environment']",
+            "equals": "prod"
+          },
+          {
+            
+            "field": "tags['reserved-instance']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

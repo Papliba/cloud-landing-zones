@@ -1,0 +1,57 @@
+{
+  "name": "block-vpn-gateway-skus",
+
+  "properties": {
+    "displayName": "Block Certain VPN Gateway SKUs",
+    "description": "This policy restricts VPN gateway SKU selection to approved tiers, ensuring appropriate performance and cost alignment.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Deny"
+      },
+      "allowedSkus": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed Gateway SKUs",
+          "description": "List of approved VPN gateway SKUs"
+        },
+        "defaultValue": ["VpnGw1", "VpnGw2", "VpnGw1AZ", "VpnGw2AZ"]
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/virtualNetworkGateways"
+          },
+          {
+            "field": "Microsoft.Network/virtualNetworkGateways/gatewayType",
+            "equals": "Vpn"
+          },
+          {
+            "field": "Microsoft.Network/virtualNetworkGateways/sku.name",
+            "notIn": "[parameters('allowedSkus')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

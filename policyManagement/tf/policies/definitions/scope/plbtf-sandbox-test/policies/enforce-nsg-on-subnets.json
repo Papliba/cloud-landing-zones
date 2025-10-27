@@ -1,0 +1,57 @@
+{
+  "name": "enforce-nsg-on-subnets",
+
+  "properties": {
+    "displayName": "Enforce Network Security Group on All Subnets",
+    "description": "This policy requires that all subnets have a Network Security Group (NSG) attached for proper network traffic control and security.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      },
+      "excludedSubnets": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Excluded Subnets",
+          "description": "List of subnet names to exclude (e.g., GatewaySubnet, AzureFirewallSubnet)"
+        },
+        "defaultValue": ["GatewaySubnet", "AzureFirewallSubnet", "AzureFirewallManagementSubnet", "AzureBastionSubnet"]
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/virtualNetworks/subnets"
+          },
+          {
+            "field": "name",
+            "notIn": "[parameters('excludedSubnets')]"
+          },
+          {
+            "field": "Microsoft.Network/virtualNetworks/subnets/networkSecurityGroup.id",
+            "exists": false
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

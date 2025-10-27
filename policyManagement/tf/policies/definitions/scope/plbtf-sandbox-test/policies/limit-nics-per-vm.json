@@ -1,0 +1,55 @@
+{
+  "name": "limit-nics-per-vm",
+
+  "properties": {
+    "displayName": "Limit Number of Network Interfaces per VM",
+    "description": "This policy limits the number of network interfaces that can be attached to a VM, controlling costs and complexity.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Cost Optimization",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      },
+      "maxNICs": {
+        "type": "Integer",
+        "metadata": {
+          "displayName": "Maximum NICs",
+          "description": "Maximum number of NICs allowed per VM"
+        },
+        "defaultValue": 2
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            "count": {
+              "field": "Microsoft.Compute/virtualMachines/networkProfile.networkInterfaces[*]"
+            },
+            "greater": "[parameters('maxNICs')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

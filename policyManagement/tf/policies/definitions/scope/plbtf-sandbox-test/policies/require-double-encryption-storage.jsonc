@@ -1,0 +1,51 @@
+{
+  // Azure Policy Definition: Require Double Encryption on Storage
+  // Purpose: Enforce infrastructure encryption in addition to service encryption
+  // This provides an additional layer of security for highly sensitive data
+
+  "name": "require-double-encryption-storage",
+
+  "properties": {
+    "displayName": "Require Double Encryption on Storage Accounts",
+    "description": "This policy requires that storage accounts use infrastructure encryption in addition to service encryption for enhanced data protection (double encryption).",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            // Target storage accounts
+            "field": "type",
+            "equals": "Microsoft.Storage/storageAccounts"
+          },
+          {
+            // Check if infrastructure encryption is not enabled
+            "field": "Microsoft.Storage/storageAccounts/encryption.requireInfrastructureEncryption",
+            "notEquals": true
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

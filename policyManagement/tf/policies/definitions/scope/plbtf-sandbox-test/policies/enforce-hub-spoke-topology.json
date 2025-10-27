@@ -1,0 +1,57 @@
+{
+  "name": "enforce-hub-spoke-topology",
+
+  "properties": {
+    "displayName": "Enforce Hub-Spoke Network Topology",
+    "description": "This policy audits virtual network peerings to ensure they follow hub-spoke topology pattern, preventing uncontrolled mesh networking.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      },
+      "hubVNetIds": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Hub VNet Resource IDs",
+          "description": "List of approved hub virtual network resource IDs"
+        },
+        "defaultValue": []
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+          },
+          {
+            "field": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/remoteVirtualNetwork.id",
+            "notIn": "[parameters('hubVNetIds')]"
+          },
+          {
+            "field": "tags['approved-peering']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

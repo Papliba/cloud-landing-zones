@@ -1,0 +1,51 @@
+{
+  
+  
+  
+
+  "name": "enforce-metric-alerts-critical-resources",
+
+  "properties": {
+    "displayName": "Enforce Metric Alerts for Critical Resources",
+    "description": "This policy requires that resources tagged as critical have metric alerts configured for proactive monitoring and incident detection.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Monitoring",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "tags['criticality']",
+            "in": ["high", "critical"]
+          },
+          {
+            
+            "field": "tags['metric-alerts-configured']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

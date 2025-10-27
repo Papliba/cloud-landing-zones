@@ -1,0 +1,66 @@
+{
+  
+  
+  
+
+  "name": "require-change-request-id-tag",
+
+  "properties": {
+    "displayName": "Require Change Request ID Tag for Production Resources",
+    "description": "This policy requires that production resources have a change-request-id tag linking them to an approved change request for audit and compliance.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Tagging",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "tags['environment']",
+            "equals": "prod"
+          },
+          {
+            
+            "anyOf": [
+              {
+                "field": "tags['change-request-id']",
+                "exists": false
+              },
+              {
+                "field": "tags['change-request-id']",
+                "equals": ""
+              },
+              {
+                
+                "not": {
+                  "field": "tags['change-request-id']",
+                  "match": "^CHG-[0-9]{7}$"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  // Azure Policy Definition: Block Certain Azure Regions
+  // Purpose: Enforce data residency and compliance requirements
+  // Restricts resource deployment to approved geographic regions only
+
+  "name": "block-disallowed-regions",
+
+  "properties": {
+    "displayName": "Block Resources in Disallowed Azure Regions",
+    "description": "This policy restricts resource deployment to approved Azure regions only, ensuring compliance with data residency and regulatory requirements.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Deny"
+      },
+      "allowedLocations": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed Locations",
+          "description": "The list of locations that resources can be deployed to",
+          "strongType": "location"
+        },
+        "defaultValue": ["swedencentral", "westeurope", "northeurope"]
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            // Exclude resource groups and subscriptions from location check
+            "field": "type",
+            "notIn": ["Microsoft.Resources/subscriptions", "Microsoft.Resources/resourceGroups"]
+          },
+          {
+            // Check if location is not in allowed list
+            "field": "location",
+            "notIn": "[parameters('allowedLocations')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

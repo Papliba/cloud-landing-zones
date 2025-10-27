@@ -1,0 +1,82 @@
+{
+  
+  
+  
+
+  "name": "block-certain-ports-nsgs",
+
+  "properties": {
+    "displayName": "Block High-Risk Ports in NSG Rules",
+    "description": "This policy prevents NSG rules from allowing access to high-risk ports commonly targeted by attackers, including Telnet, FTP, SMB, and others.",
+
+    "mode": "All",
+
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Deny"
+      },
+      "blockedPorts": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Blocked Ports",
+          "description": "List of ports that should not be exposed"
+        },
+        "defaultValue": ["23", "21", "445", "139", "135", "1433", "3306", "5432", "27017"]
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "type",
+            "equals": "Microsoft.Network/networkSecurityGroups/securityRules"
+          },
+          {
+            
+            "field": "Microsoft.Network/networkSecurityGroups/securityRules/direction",
+            "equals": "Inbound"
+          },
+          {
+            
+            "field": "Microsoft.Network/networkSecurityGroups/securityRules/access",
+            "equals": "Allow"
+          },
+          {
+            
+            "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefix",
+            "in": ["*", "Internet", "0.0.0.0/0"]
+          },
+          {
+            
+            "anyOf": [
+              {
+                "field": "Microsoft.Network/networkSecurityGroups/securityRules/destinationPortRange",
+                "in": "[parameters('blockedPorts')]"
+              },
+              {
+                "field": "Microsoft.Network/networkSecurityGroups/securityRules/destinationPortRanges[*]",
+                "in": "[parameters('blockedPorts')]"
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

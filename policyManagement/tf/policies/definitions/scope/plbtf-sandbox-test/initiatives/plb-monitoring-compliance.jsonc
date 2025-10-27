@@ -1,0 +1,124 @@
+{
+  // Azure Policy Initiative: PLB Monitoring and Logging Compliance
+  // Purpose: Ensure comprehensive monitoring and logging across all Azure resources
+  // This initiative enforces diagnostic settings, Log Analytics integration, Application Insights, alerts, and NSG flow logs
+
+  "name": "plb-monitoring-compliance",
+
+  "properties": {
+    "displayName": "PLB Monitoring and Logging Compliance Initiative",
+    "description": "Enforces comprehensive monitoring and logging requirements including diagnostic settings, Log Analytics workspace integration, Application Insights, alerting, and NSG flow logs for security and compliance.",
+
+    "metadata": {
+      "category": "Monitoring",
+      "version": "1.0.0"
+    },
+
+    // Parameters that can be configured during initiative assignment
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect for all policies",
+          "description": "Enable or disable the execution of policies in this initiative"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    // List of monitoring and logging policy definitions
+    "policyDefinitions": [
+      {
+        // Require diagnostic settings on all resources
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-diagnostic-settings-all-resources",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require Log Analytics workspace for centralized logging
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-log-analytics-workspace",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require Application Insights for web apps
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-app-insights-web-apps",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require NSG flow logs for network monitoring
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-nsg-flow-logs",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require Network Watcher in all regions
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/enforce-network-watcher-all-regions",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require boot diagnostics on VMs
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-boot-diagnostics-vms",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require Azure Monitor agent on VMs
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-azure-monitor-agent-vms",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require change tracking and inventory on VMs
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-change-tracking-vms",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require SQL auditing enabled
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/enforce-sql-auditing",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        // Require Azure Defender enabled for security monitoring
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-azure-defender-enabled",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      }
+    ]
+  }
+}

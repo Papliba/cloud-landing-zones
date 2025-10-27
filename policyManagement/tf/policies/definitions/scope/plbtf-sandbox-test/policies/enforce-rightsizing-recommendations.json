@@ -1,0 +1,56 @@
+{
+  
+  
+  
+
+  "name": "enforce-rightsizing-recommendations",
+
+  "properties": {
+    "displayName": "Audit Resources with Right-Sizing Recommendations",
+    "description": "This policy audits resources that have Azure Advisor right-sizing recommendations, helping optimize resource allocation and reduce unnecessary costs.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Cost Optimization",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "type",
+            "in": ["Microsoft.Compute/virtualMachines", "Microsoft.Sql/servers/databases"]
+          },
+          {
+            
+            "field": "tags['advisor-rightsize-recommendation']",
+            "equals": "true"
+          },
+          {
+            
+            "field": "tags['rightsize-acknowledged']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

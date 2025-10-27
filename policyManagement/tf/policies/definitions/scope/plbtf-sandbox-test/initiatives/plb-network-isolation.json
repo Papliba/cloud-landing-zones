@@ -1,0 +1,112 @@
+{
+  "name": "plb-network-isolation",
+  "properties": {
+    "displayName": "PLB Network Isolation and Segmentation Initiative",
+    "description": "Enforces network isolation and segmentation best practices including VNet peering restrictions, private DNS zones, service endpoints, UDR requirements, and hub-spoke topology standards.",
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect for all policies",
+          "description": "Enable or disable the execution of policies in this initiative"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyDefinitions": [
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/block-vnet-peering-external-tenants",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/enforce-private-dns-zones",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/enforce-service-endpoints-subnets",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/enforce-udr-on-subnets",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/enforce-hub-spoke-topology",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/block-default-route-internet",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-private-link-paas",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-specific-dns-servers",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/enforce-network-isolation-aks",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/block-direct-internet-connectivity",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/root-mg/providers/Microsoft.Authorization/policyDefinitions/require-azure-firewall-egress",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect')]"
+          }
+        }
+      }
+    ]
+  }
+}

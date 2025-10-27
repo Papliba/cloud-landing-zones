@@ -1,0 +1,57 @@
+{
+  // Azure Policy Definition: Enforce Azure Monitor Agent on VMs
+  // Purpose: Ensure all VMs have monitoring agent for metrics and logs collection
+  // This enables comprehensive monitoring and alerting
+
+  "name": "enforce-azure-monitor-agent-vms",
+
+  "properties": {
+    "displayName": "Enforce Azure Monitor Agent on Virtual Machines",
+    "description": "This policy requires that all virtual machines have the Azure Monitor Agent (AMA) installed for comprehensive monitoring, metrics collection, and log forwarding.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Monitoring",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["AuditIfNotExists", "DeployIfNotExists", "Disabled"],
+        "defaultValue": "AuditIfNotExists"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Compute/virtualMachines"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          // Check for Azure Monitor Agent extension
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "existenceCondition": {
+            "anyOf": [
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/type",
+                "equals": "AzureMonitorWindowsAgent"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/type",
+                "equals": "AzureMonitorLinuxAgent"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

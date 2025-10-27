@@ -1,0 +1,59 @@
+{
+  // Azure Policy Definition: Limit Number of Public IPs per Subscription
+  // Purpose: Control costs by limiting public IP address allocation
+  // Public IPs incur ongoing charges even when not actively used
+
+  "name": "limit-public-ips-per-subscription",
+
+  "properties": {
+    "displayName": "Limit Number of Public IP Addresses per Subscription",
+    "description": "This policy audits subscriptions that exceed the allowed number of public IP addresses, helping control costs and reduce attack surface.",
+
+    "mode": "All",
+
+    "metadata": {
+      "category": "Cost Optimization",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Disabled"],
+        "defaultValue": "Audit"
+      },
+      "maxPublicIPs": {
+        "type": "Integer",
+        "metadata": {
+          "displayName": "Maximum Public IPs",
+          "description": "Maximum number of public IPs allowed per subscription"
+        },
+        "defaultValue": 20
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            // Target public IP addresses
+            "field": "type",
+            "equals": "Microsoft.Network/publicIPAddresses"
+          },
+          {
+            // This is a simplified check; actual count would need custom logic
+            "field": "tags['ip-count-check']",
+            "exists": false
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

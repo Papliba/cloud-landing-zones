@@ -1,0 +1,65 @@
+{
+  "name": "inherit-tags-from-resource-group",
+
+  "properties": {
+    "displayName": "Inherit Specific Tags from Resource Group",
+    "description": "This policy automatically inherits specified tags from the resource group to all resources within it, ensuring consistent tagging.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Tagging",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "The effect determines what happens when the policy rule is evaluated"
+        },
+        "allowedValues": ["Modify", "Audit", "Disabled"],
+        "defaultValue": "Modify"
+      },
+      "tagName": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Tag Name",
+          "description": "Name of the tag to inherit from resource group"
+        },
+        "defaultValue": "cost-center"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "[concat('tags[', parameters('tagName'), ']')]",
+            "exists": false
+          },
+          {
+            "value": "[resourceGroup().tags[parameters('tagName')]]",
+            "notEquals": ""
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "operations": [
+            {
+              "operation": "add",
+              "field": "[concat('tags[', parameters('tagName'), ']')]",
+              "value": "[resourceGroup().tags[parameters('tagName')]]"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

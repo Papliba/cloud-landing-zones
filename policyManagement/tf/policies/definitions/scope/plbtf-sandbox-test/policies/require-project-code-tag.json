@@ -1,0 +1,58 @@
+{
+  
+  
+  
+
+  "name": "require-project-code-tag",
+
+  "properties": {
+    "displayName": "Require Project Code Tag on All Resources",
+    "description": "This policy requires that all resources have a project-code tag following the format PRJ-XXXX for project-level tracking and cost allocation.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Tagging",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "anyOf": [
+          {
+            
+            "field": "tags['project-code']",
+            "exists": false
+          },
+          {
+            
+            "field": "tags['project-code']",
+            "equals": ""
+          },
+          {
+            
+            "not": {
+              "field": "tags['project-code']",
+              "match": "^PRJ-[0-9]{4}$"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

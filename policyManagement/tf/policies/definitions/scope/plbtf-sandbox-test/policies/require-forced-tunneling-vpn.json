@@ -1,0 +1,56 @@
+{
+  
+  
+  
+
+  "name": "require-forced-tunneling-vpn",
+
+  "properties": {
+    "displayName": "Require Forced Tunneling for VPN Connections",
+    "description": "This policy requires that VPN gateway connections use forced tunneling, routing all internet-bound traffic through on-premises security controls.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "type",
+            "equals": "Microsoft.Network/virtualNetworkGateways"
+          },
+          {
+            
+            "field": "Microsoft.Network/virtualNetworkGateways/gatewayType",
+            "equals": "Vpn"
+          },
+          {
+            
+            "field": "tags['forced-tunneling-enabled']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

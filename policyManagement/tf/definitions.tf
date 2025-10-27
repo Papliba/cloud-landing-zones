@@ -1,39 +1,35 @@
 locals {
-  # Get all policy definition files (both .json and .jsonc) from the policies/definitions/scope/root-mg/policies folder
-  policy_files_jsonc = fileset("${path.module}/policies/definitions/scope/root-mg/policies", "*.jsonc")
-  policy_files_json  = fileset("${path.module}/policies/definitions/scope/root-mg/policies", "*.json")
-  policy_files       = setunion(local.policy_files_jsonc, local.policy_files_json)
+  # Discover all policy definition JSON files across all management group scopes
+  # Note: JSONC files are automatically converted to JSON by the pipeline before Terraform runs
+  # The folder structure determines deployment scope: policies/definitions/scope/{mg-name}/policies/*.json
 
-  # Read and parse policy files
-  # - JSONC files: strip comments using external Python script
-  # - JSON files: read directly
-  policy_file_contents = {
-    for file in local.policy_files :
-    file => endswith(file, ".jsonc")
-    ? jsondecode(file("${path.module}/policies/definitions/scope/root-mg/policies/${file}"))
-    : jsondecode(file("${path.module}/policies/definitions/scope/root-mg/policies/${file}"))
-  }
+  # Find all policy files with their full paths
+  all_policy_files = fileset("${path.module}/policies/definitions/scope", "**/policies/*.json")
 
-  # Create policy definitions map with clean names as keys
+  # Parse policy files and extract management group from path
   policy_definitions = {
-    for file, content in local.policy_file_contents :
-    replace(replace(file, ".jsonc", ""), ".json", "") => content
+    for file_path in local.all_policy_files :
+    "${regex("scope/([^/]+)/", file_path)[0]}-${replace(basename(file_path), ".json", "")}" => {
+      content             = jsondecode(file("${path.module}/policies/definitions/scope/${file_path}"))
+      management_group_id = regex("scope/([^/]+)/", file_path)[0]
+      file_path           = file_path
+    }
   }
 }
 
 resource "azurerm_policy_definition" "policies" {
   for_each = local.policy_definitions
 
-  name                = each.value.name
+  name                = each.value.content.name
   policy_type         = "Custom"
-  mode                = each.value.properties.mode
-  management_group_id = "/providers/Microsoft.Management/managementGroups/plbtf-sandbox-test"
-  display_name        = each.value.properties.displayName
-  description         = each.value.properties.description
+  mode                = each.value.content.properties.mode
+  management_group_id = each.value.management_group_id
+  display_name        = each.value.content.properties.displayName
+  description         = each.value.content.properties.description
 
-  metadata = jsonencode(each.value.properties.metadata)
+  metadata = jsonencode(each.value.content.properties.metadata)
 
-  parameters = jsonencode(each.value.properties.parameters)
+  parameters = jsonencode(each.value.content.properties.parameters)
 
-  policy_rule = jsonencode(each.value.properties.policyRule)
+  policy_rule = jsonencode(each.value.content.properties.policyRule)
 }

@@ -1,0 +1,56 @@
+{
+  
+  
+  
+
+  "name": "require-scale-down-schedules",
+
+  "properties": {
+    "displayName": "Require Scale-Down Schedules for Auto-Scaling Resources",
+    "description": "This policy audits auto-scaling resources to ensure they have scale-down rules configured, preventing unnecessarily high capacity and costs.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Cost Optimization",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            
+            "field": "type",
+            "equals": "Microsoft.Web/serverfarms"
+          },
+          {
+            
+            "field": "Microsoft.Web/serverfarms/sku.tier",
+            "notEquals": "Dynamic"
+          },
+          {
+            
+            "field": "tags['scale-schedule-configured']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

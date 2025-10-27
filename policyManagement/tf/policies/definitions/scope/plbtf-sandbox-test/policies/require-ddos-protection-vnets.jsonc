@@ -1,0 +1,56 @@
+{
+  // Azure Policy Definition: Require DDoS Protection on VNets
+  // Purpose: Ensure critical virtual networks have DDoS protection enabled
+  // This protects against distributed denial of service attacks
+
+  "name": "require-ddos-protection-vnets",
+
+  "properties": {
+    "displayName": "Require DDoS Protection on Production Virtual Networks",
+    "description": "This policy requires that production virtual networks have Azure DDoS Protection Standard enabled to protect against distributed denial of service attacks.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            // Target virtual networks
+            "field": "type",
+            "equals": "Microsoft.Network/virtualNetworks"
+          },
+          {
+            // Production environment
+            "field": "tags['environment']",
+            "equals": "prod"
+          },
+          {
+            // DDoS protection not enabled
+            "field": "Microsoft.Network/virtualNetworks/enableDdosProtection",
+            "notEquals": true
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

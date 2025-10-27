@@ -1,0 +1,51 @@
+{
+  "name": "block-direct-internet-connectivity",
+
+  "properties": {
+    "displayName": "Block Direct Internet Connectivity for VMs",
+    "description": "This policy prevents VMs from having direct internet connectivity without going through centralized security controls like Azure Firewall.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Networking",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            "count": {
+              "field": "Microsoft.Compute/virtualMachines/networkProfile.networkInterfaces[*]"
+            },
+            "greater": 0
+          },
+          {
+            "field": "tags['direct-internet-approved']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

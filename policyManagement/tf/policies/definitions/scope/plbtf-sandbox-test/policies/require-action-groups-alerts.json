@@ -1,0 +1,51 @@
+{
+  "name": "require-action-groups-alerts",
+
+  "properties": {
+    "displayName": "Require Action Groups for Critical Alerts",
+    "description": "This policy audits metric alert rules to ensure they have action groups configured for notification and automated response.",
+
+    "mode": "All",
+
+    "metadata": {
+      "category": "Monitoring",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Insights/metricAlerts"
+          },
+          {
+            "field": "Microsoft.Insights/metricAlerts/severity",
+            "in": ["0", "1", "2"]
+          },
+          {
+            "count": {
+              "field": "Microsoft.Insights/metricAlerts/actions[*]"
+            },
+            "less": 1
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

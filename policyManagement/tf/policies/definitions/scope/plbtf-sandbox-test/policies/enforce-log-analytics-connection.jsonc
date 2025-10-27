@@ -1,0 +1,60 @@
+{
+  // Azure Policy Definition: Enforce Log Analytics Workspace Connection
+  // Purpose: Ensure all diagnostic logs are sent to centralized Log Analytics
+  // This enables unified monitoring, alerting, and security analysis
+
+  "name": "enforce-log-analytics-connection",
+
+  "properties": {
+    "displayName": "Enforce Log Analytics Workspace Connection for Diagnostic Settings",
+    "description": "This policy requires that all diagnostic settings send data to an approved Log Analytics workspace for centralized monitoring and analysis.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Monitoring",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["AuditIfNotExists", "Disabled"],
+        "defaultValue": "AuditIfNotExists"
+      },
+      "logAnalyticsWorkspaceId": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Log Analytics Workspace ID",
+          "description": "Resource ID of the approved Log Analytics workspace"
+        }
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "in": [
+          "Microsoft.Compute/virtualMachines",
+          "Microsoft.Storage/storageAccounts",
+          "Microsoft.Network/networkSecurityGroups"
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          // Check for diagnostic settings pointing to Log Analytics
+          "type": "Microsoft.Insights/diagnosticSettings",
+          "existenceCondition": {
+            "field": "Microsoft.Insights/diagnosticSettings/workspaceId",
+            "equals": "[parameters('logAnalyticsWorkspaceId')]"
+          }
+        }
+      }
+    }
+  }
+}

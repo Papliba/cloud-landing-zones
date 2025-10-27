@@ -1,0 +1,59 @@
+{
+  // Azure Policy Definition: Require Lifecycle Management on Storage
+  // Purpose: Automatically manage blob lifecycle to optimize storage costs
+  // This includes archiving old data and deleting expired content
+
+  "name": "require-lifecycle-management-storage",
+
+  "properties": {
+    "displayName": "Require Lifecycle Management Policy on Storage Accounts",
+    "description": "This policy requires that storage accounts have lifecycle management policies configured to automatically tier or delete old data, optimizing storage costs.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Cost Optimization",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["AuditIfNotExists", "Disabled"],
+        "defaultValue": "AuditIfNotExists"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            // Target storage accounts
+            "field": "type",
+            "equals": "Microsoft.Storage/storageAccounts"
+          },
+          {
+            // Blob storage capable
+            "field": "Microsoft.Storage/storageAccounts/kind",
+            "in": ["StorageV2", "BlobStorage"]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          // Check for lifecycle management policy
+          "type": "Microsoft.Storage/storageAccounts/managementPolicies",
+          "existenceCondition": {
+            "field": "Microsoft.Storage/storageAccounts/managementPolicies/policy.rules[*].enabled",
+            "equals": true
+          }
+        }
+      }
+    }
+  }
+}

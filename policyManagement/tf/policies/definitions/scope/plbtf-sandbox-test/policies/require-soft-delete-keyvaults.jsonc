@@ -1,0 +1,59 @@
+{
+  // Azure Policy Definition: Require Soft Delete on Key Vaults
+  // Purpose: Protect against accidental or malicious deletion of secrets
+  // Soft delete allows recovery of deleted vaults within retention period
+
+  "name": "require-soft-delete-keyvaults",
+
+  "properties": {
+    "displayName": "Require Soft Delete Enabled on Key Vaults",
+    "description": "This policy ensures that all Key Vaults have soft delete enabled, allowing recovery of accidentally deleted vaults and secrets within the retention period.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Deny"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            // Target Key Vaults
+            "field": "type",
+            "equals": "Microsoft.KeyVault/vaults"
+          },
+          {
+            // Check if soft delete is not enabled
+            "anyOf": [
+              {
+                "field": "Microsoft.KeyVault/vaults/enableSoftDelete",
+                "notEquals": true
+              },
+              {
+                "field": "Microsoft.KeyVault/vaults/enableSoftDelete",
+                "exists": false
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

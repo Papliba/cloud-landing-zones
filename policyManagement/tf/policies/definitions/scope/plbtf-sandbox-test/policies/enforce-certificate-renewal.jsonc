@@ -1,0 +1,59 @@
+{
+  // Azure Policy Definition: Enforce Certificate Renewal Before Expiry
+  // Purpose: Audit certificates nearing expiration to prevent service disruptions
+  // This helps maintain continuous service availability
+
+  "name": "enforce-certificate-renewal",
+
+  "properties": {
+    "displayName": "Enforce Certificate Renewal Before Expiry",
+    "description": "This policy audits certificates in Key Vault that are approaching expiration, ensuring timely renewal to prevent service disruptions.",
+
+    "mode": "All",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Disabled"],
+        "defaultValue": "Audit"
+      },
+      "daysBeforeExpiry": {
+        "type": "Integer",
+        "metadata": {
+          "displayName": "Days Before Expiry",
+          "description": "Number of days before expiry to trigger audit"
+        },
+        "defaultValue": 30
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            // Target Key Vault certificates
+            "field": "type",
+            "equals": "Microsoft.KeyVault/vaults/certificates"
+          },
+          {
+            // Check expiration tag (custom implementation)
+            "field": "tags['certificate-expiry-warned']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

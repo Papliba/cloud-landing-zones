@@ -1,0 +1,53 @@
+{
+  "name": "block-public-ip-on-resources",
+
+  "properties": {
+    "displayName": "Block Public IP Addresses on Certain Resources",
+    "description": "This policy prevents assignment of public IP addresses to VMs and other resources to enforce private networking and reduce attack surface.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Security",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Deny"
+      },
+      "excludedResourceTypes": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Excluded Resource Types",
+          "description": "Resource types that are allowed to have public IPs"
+        },
+        "defaultValue": ["Microsoft.Network/bastionHosts", "Microsoft.Network/applicationGateways"]
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/publicIPAddresses"
+          },
+          {
+            "field": "tags['allowed-public-ip']",
+            "notEquals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

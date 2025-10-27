@@ -1,0 +1,47 @@
+{
+  "name": "require-cost-center-tag-format",
+
+  "properties": {
+    "displayName": "Require Cost Center Tag with Format Validation",
+    "description": "This policy requires that all resources have a cost-center tag following the organization's format (CC-XXXX), enabling accurate financial tracking.",
+
+    "mode": "Indexed",
+
+    "metadata": {
+      "category": "Tagging",
+      "version": "1.0.0"
+    },
+
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": ["Audit", "Deny", "Disabled"],
+        "defaultValue": "Audit"
+      }
+    },
+
+    "policyRule": {
+      "if": {
+        "anyOf": [
+          {
+            "field": "tags['cost-center']",
+            "exists": false
+          },
+          {
+            "not": {
+              "field": "tags['cost-center']",
+              "match": "^CC-[0-9]{4}$"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}
