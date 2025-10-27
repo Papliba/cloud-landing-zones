@@ -27,6 +27,7 @@ stages:
         script: |
           Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
         failOnStderr: false
       displayName: 'Convert JSONC to JSON'
 
@@ -411,6 +412,7 @@ stages:
         script: |
           Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
         failOnStderr: false
       displayName: 'Convert JSONC to JSON'
 
