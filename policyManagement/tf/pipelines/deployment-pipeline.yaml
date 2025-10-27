@@ -424,6 +424,10 @@ stages:
           echo "Removing enforce-certificate-renewal from Terraform state..."
           terraform state rm 'azurerm_policy_definition.policies["plbtf-sandbox-test-enforce-certificate-renewal"]' || echo "Policy not found in state, continuing..."
 
+          # Regenerate plan after state cleanup to reflect current state
+          echo "Regenerating plan with clean state..."
+          terraform plan -out=tfplan
+
           terraform apply -auto-approve tfplan
         workingDirectory: $(workingDirectory)
         failOnStandardError: false
