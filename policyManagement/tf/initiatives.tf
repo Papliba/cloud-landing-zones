@@ -18,7 +18,7 @@ resource "azurerm_management_group_policy_set_definition" "initiatives" {
   description         = each.value.content.properties.description
   metadata            = jsonencode(each.value.content.properties.metadata)
   parameters          = jsonencode(each.value.content.properties.parameters)
-  management_group_id = each.value.management_group_name
+  management_group_id = "/providers/Microsoft.Management/managementGroups/${each.value.management_group_name}"
   dynamic "policy_definition_reference" {
     for_each = each.value.content.properties.policyDefinitions
     content {
