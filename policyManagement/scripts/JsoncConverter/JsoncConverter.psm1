@@ -167,26 +167,26 @@ function Convert-JsoncToJson {
         Write-Host ""
         Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
         Write-Host ""
-        Write-Host "📊 CONVERSION SUMMARY" -ForegroundColor Cyan
+        Write-Host "CONVERSION SUMMARY" -ForegroundColor Cyan
         Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
-        Write-Host "  ✅ Successful: " -NoNewline -ForegroundColor Green
+        Write-Host "  [OK] Successful: " -NoNewline -ForegroundColor Green
         Write-Host "$successCount / $($files.Count)" -ForegroundColor White
 
         if ($failCount -gt 0) {
-            Write-Host "  ❌ Failed:     " -NoNewline -ForegroundColor Red
+            Write-Host "  [ERROR] Failed: " -NoNewline -ForegroundColor Red
             Write-Host "$failCount / $($files.Count)" -ForegroundColor White
         }
 
         Write-Host ""
 
         if ($successCount -eq $files.Count) {
-            Write-Host "  🎉 All files converted successfully!" -ForegroundColor Green
+            Write-Host "  All files converted successfully!" -ForegroundColor Green
         }
         elseif ($successCount -gt 0) {
-            Write-Host "  ⚠️  Some files converted with issues" -ForegroundColor Yellow
+            Write-Host "  [WARN] Some files converted with issues" -ForegroundColor Yellow
         }
         else {
-            Write-Host "  ❌ Conversion failed" -ForegroundColor Red
+            Write-Host "  [ERROR] Conversion failed" -ForegroundColor Red
         }
 
         Write-Host ""
