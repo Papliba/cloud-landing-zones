@@ -83,32 +83,53 @@ function Convert-JsoncToJson {
         }
 
         if (-not $files) {
-            Write-Warning "No .jsonc files found in $Path"
+            Write-Host "`n⚠️  No JSONC files found in: $Path" -ForegroundColor Yellow
+            Write-Host "   Skipping conversion step`n" -ForegroundColor Gray
             return
         }
 
-        Write-Host "Found $($files.Count) JSONC file(s)`n" -ForegroundColor Yellow
+        # Header
+        Write-Host ""
+        Write-Host "╔════════════════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+        Write-Host "║               JSONC TO JSON CONVERSION PROCESS                             ║" -ForegroundColor Cyan
+        Write-Host "╚════════════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "📁 Source Path: $Path" -ForegroundColor White
+        Write-Host "📊 Files Found: $($files.Count) JSONC file(s)" -ForegroundColor White
+        Write-Host ""
+        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+        Write-Host ""
 
         # Process each file
         $successCount = 0
+        $failCount = 0
+        $currentFile = 0
+
         foreach ($file in $files) {
             try {
-                Write-Host "Processing: $($file.FullName)" -ForegroundColor Cyan
+                $currentFile++
+                $fileName = [System.IO.Path]::GetFileNameWithoutExtension($file.Name)
+                $relativePath = $file.FullName.Replace($Path, "").TrimStart('\', '/')
+
+                Write-Host "[$currentFile/$($files.Count)] " -NoNewline -ForegroundColor DarkCyan
+                Write-Host "🔄 Converting: " -NoNewline -ForegroundColor Cyan
+                Write-Host "$relativePath" -ForegroundColor White
 
                 $jsoncContent = Get-Content -Path $file.FullName -Raw -Encoding UTF8
                 $jsonContent = Remove-JsoncComments -Content $jsoncContent
 
                 # Validate JSON
+                $isValid = $false
                 try {
                     $null = $jsonContent | ConvertFrom-Json -ErrorAction Stop
-                    Write-Host "  ✓ Valid JSON" -ForegroundColor Green
+                    $isValid = $true
+                    Write-Host "    ✅ Validated" -ForegroundColor Green -NoNewline
                 }
                 catch {
-                    Write-Warning "  ⚠ JSON validation failed: $($_.Exception.Message)"
+                    Write-Host "    ⚠️  Validation Warning: $($_.Exception.Message)" -ForegroundColor Yellow
                 }
 
                 # Save JSON file
-                $fileName = [System.IO.Path]::GetFileNameWithoutExtension($file.FullName)
                 if ($OutputPath) {
                     if (-not (Test-Path $OutputPath)) {
                         New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
@@ -120,18 +141,57 @@ function Convert-JsoncToJson {
                 }
 
                 $jsonContent | Set-Content -Path $outputFile -Encoding UTF8 -NoNewline
-                Write-Host "  → Saved to: $outputFile" -ForegroundColor Green
+
+                if ($isValid) {
+                    Write-Host " | " -NoNewline -ForegroundColor DarkGray
+                    Write-Host "💾 Saved" -ForegroundColor Green
+                }
+                else {
+                    Write-Host "    💾 Saved (with warnings)" -ForegroundColor Yellow
+                }
 
                 $successCount++
             }
             catch {
-                Write-Error "Failed to process $($file.FullName): $($_.Exception.Message)"
+                $failCount++
+                Write-Host "    ❌ Failed: $($_.Exception.Message)" -ForegroundColor Red
+            }
+
+            # Add spacing between files
+            if ($currentFile -lt $files.Count) {
+                Write-Host ""
             }
         }
 
-        Write-Host "`n================================" -ForegroundColor Cyan
-        Write-Host "Success: $successCount / $($files.Count)" -ForegroundColor Green
-        Write-Host "================================`n" -ForegroundColor Cyan
+        # Summary
+        Write-Host ""
+        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+        Write-Host ""
+        Write-Host "📊 CONVERSION SUMMARY" -ForegroundColor Cyan
+        Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor DarkGray
+        Write-Host "  ✅ Successful: " -NoNewline -ForegroundColor Green
+        Write-Host "$successCount / $($files.Count)" -ForegroundColor White
+
+        if ($failCount -gt 0) {
+            Write-Host "  ❌ Failed:     " -NoNewline -ForegroundColor Red
+            Write-Host "$failCount / $($files.Count)" -ForegroundColor White
+        }
+
+        Write-Host ""
+
+        if ($successCount -eq $files.Count) {
+            Write-Host "  🎉 All files converted successfully!" -ForegroundColor Green
+        }
+        elseif ($successCount -gt 0) {
+            Write-Host "  ⚠️  Some files converted with issues" -ForegroundColor Yellow
+        }
+        else {
+            Write-Host "  ❌ Conversion failed" -ForegroundColor Red
+        }
+
+        Write-Host ""
+        Write-Host "╚════════════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+        Write-Host ""
     }
     catch {
         Write-Error "An error occurred: $($_.Exception.Message)"
