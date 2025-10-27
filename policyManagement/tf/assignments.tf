@@ -1,9 +1,9 @@
 locals {
-  all_assignment_files = fileset("${path.module}/policies/assignments/socpe", "**/*.json")
+  all_assignment_files = fileset("${path.module}/policies/assignments/scope", "**/*.json")
   assignment_definitions = {
     for file_path in local.all_assignment_files :
     "${dirname(file_path)}-${replace(basename(file_path), ".json", "")}" => {
-      content               = jsondecode(file("${path.module}/policies/assignments/socpe/${file_path}"))
+      content               = jsondecode(file("${path.module}/policies/assignments/scope/${file_path}"))
       management_group_name = dirname(file_path)
       file_path             = file_path
     }
