@@ -160,7 +160,10 @@ stages:
           REPORT_DIR="$(Build.ArtifactStagingDirectory)/terraform-report"
           mkdir -p "$REPORT_DIR"
 
-          # Create a beautiful HTML report
+          # Read and process the plan JSON
+          PLAN_DATA=$(cat "$PLAN_JSON" | jq -c '.')
+
+          # Create a beautiful HTML report with embedded data
           cat > "$REPORT_DIR/plan-report.html" << 'EOF'
           <!DOCTYPE html>
           <html lang="en">
@@ -255,11 +258,13 @@ stages:
               </div>
 
               <script>
+                  // Embedded plan data (will be replaced by actual data)
+                  const TERRAFORM_PLAN_DATA = PLAN_DATA_PLACEHOLDER;
+
                   // Parse plan data and populate report
-                  async function loadPlanData() {
+                  function loadPlanData() {
                       try {
-                          const response = await fetch('tfplan.json');
-                          const plan = await response.json();
+                          const plan = TERRAFORM_PLAN_DATA;
 
                           let addCount = 0, changeCount = 0, destroyCount = 0;
                           const policyDefs = [];
@@ -357,9 +362,18 @@ stages:
           # Copy tfplan.json to report directory
           cp "$PLAN_JSON" "$REPORT_DIR/tfplan.json"
 
-          # Replace Azure DevOps variables in HTML
+          # Escape the JSON data for safe embedding in HTML
+          ESCAPED_PLAN_DATA=$(echo "$PLAN_DATA" | sed 's/\\/\\\\/g' | sed 's/`/\\`/g')
+
+          # Replace placeholders in HTML
           sed -i "s/BUILD_BUILDNUMBER/$(Build.BuildNumber)/g" "$REPORT_DIR/plan-report.html" 2>/dev/null || \
           sed -i '' "s/BUILD_BUILDNUMBER/$(Build.BuildNumber)/g" "$REPORT_DIR/plan-report.html"
+
+          # Inject the plan data into the HTML
+          # Use a temporary file to handle special characters properly
+          TMP_FILE=$(mktemp)
+          awk -v data="$PLAN_DATA" '{gsub(/PLAN_DATA_PLACEHOLDER/, data)}1' "$REPORT_DIR/plan-report.html" > "$TMP_FILE"
+          mv "$TMP_FILE" "$REPORT_DIR/plan-report.html"
 
           echo ""
           echo "[OK] Terraform plan HTML report generated at: $REPORT_DIR/plan-report.html"
@@ -375,41 +389,41 @@ stages:
         publishLocation: 'pipeline'
       displayName: 'Publish Terraform Plan Report'
 
-#     - task: PublishPipelineArtifact@1
-#       inputs:
-#         targetPath: '$(workingDirectory)/tfplan'
-#         artifact: 'terraform-plan'
-#         publishLocation: 'pipeline'
-#       displayName: 'Publish Terraform Plan' 
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(workingDirectory)/tfplan'
+        artifact: 'terraform-plan'
+        publishLocation: 'pipeline'
+      displayName: 'Publish Terraform Plan' 
 
-# - stage: dev_deploy
-#   displayName: 'dev_deploy'
-#   dependsOn: dev_plan
-#   jobs:
-#   - job: apply
-#     displayName: 'apply'
-#     steps:
-#     - checkout: self
+- stage: dev_deploy
+  displayName: 'dev_deploy'
+  dependsOn: dev_plan
+  jobs:
+  - job: apply
+    displayName: 'apply'
+    steps:
+    - checkout: self
 
-#     - task: DownloadPipelineArtifact@2
-#       inputs:
-#         buildType: 'current'
-#         artifactName: 'terraform-plan'
-#         targetPath: '$(workingDirectory)'
-#       displayName: 'Download Terraform Plan'
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: 'terraform-plan'
+        targetPath: '$(workingDirectory)'
+      displayName: 'Download Terraform Plan'
 
-#     - task: AzureCLI@2
-#       inputs:
-#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-#         scriptType: 'bash'
-#         scriptLocation: 'inlineScript' # 'scriptPath'
-#         # scriptPath: '/pathtoscript'
-#         inlineScript: |
-#           terraform init
-#           terraform apply -auto-approve tfplan
-#         # arguments: # string. Alias: scriptArguments. Script Arguments.
-#         workingDirectory: $(workingDirectory)
-#         failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
-#       displayName: 'apply'
-#       env:
-#         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript' # 'scriptPath'
+        # scriptPath: '/pathtoscript'
+        inlineScript: |
+          terraform init
+          terraform apply -auto-approve tfplan
+        # arguments: # string. Alias: scriptArguments. Script Arguments.
+        workingDirectory: $(workingDirectory)
+        failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
+      displayName: 'apply'
+      env:
+        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)

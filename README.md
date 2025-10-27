@@ -81,7 +81,6 @@ cloud-landing-zones/
 
 ## Testing
 
-
 ```bash
 npm run test
 npm run test:watch
@@ -114,6 +113,7 @@ az account set --subscription "your-subscription-id"
 ## Troubleshooting
 
 **Provider Lock Issues**:
+
 ```bash
 rm .terraform.lock.hcl
 terraform force-unlock <lock-id>
