@@ -120,4 +120,4 @@ stages:
 #         failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
 #       displayName: 'apply'
 #       env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY) 
+#         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
