@@ -20,5 +20,5 @@ resource "azurerm_policy_definition" "definitions" {
   metadata            = jsonencode(each.value.content.properties.metadata)
   parameters          = jsonencode(each.value.content.properties.parameters)
   policy_rule         = jsonencode(each.value.content.properties.policyRule)
-  management_group_id = "/providers/Microsoft.Management/managementGroups/${each.value.management_group_name}"
+  management_group_id = "/providers/Microsoft.Management/managementGroups/${each.value.management_group_name}${var.environment}"
 }

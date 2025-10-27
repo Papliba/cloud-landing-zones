@@ -11,7 +11,7 @@
     "displayName": "Assign Subscription Governance Initiative",
 
     // Detailed description of what this assignment does
-    "description": "Assigns the subscription governance initiative to the management-dev management group to enforce subscription naming conventions and compliance requirements.",
+    "description": "Assigns the subscription governance initiative to the management management group to enforce subscription naming conventions and compliance requirements.",
 
     // Metadata for assignment classification
     "metadata": {
@@ -21,7 +21,7 @@
     },
 
     // Reference to the policy set definition (initiative) to assign
-    "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/plbtf-dev/providers/Microsoft.Authorization/policySetDefinitions/subscription-governance-initiative",
+    "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/plbtf/providers/Microsoft.Authorization/policySetDefinitions/subscription-governance-initiative",
 
     // Enforcement mode: Default (enforce), DoNotEnforce (audit only)
     "enforcementMode": "Default",
