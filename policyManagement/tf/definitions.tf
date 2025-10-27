@@ -20,5 +20,7 @@ resource "azurerm_policy_definition" "definitions" {
   metadata            = jsonencode(each.value.content.properties.metadata)
   parameters          = jsonencode(each.value.content.properties.parameters)
   policy_rule         = jsonencode(each.value.content.properties.policyRule)
+  # Dynamically append environment suffix to management group ID
+  # Example: plbtf + -dev = plbtf-dev, plbtf-management + -test = plbtf-management-test
   management_group_id = "/providers/Microsoft.Management/managementGroups/${each.value.management_group_name}${var.environment}"
 }
