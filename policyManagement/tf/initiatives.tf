@@ -13,7 +13,7 @@ locals {
     for file_path in local.all_initiative_files :
     "${dirname(dirname(file_path))}-${replace(basename(file_path), ".json", "")}" => {
       content             = jsondecode(file("${path.module}/policies/definitions/scope/${file_path}"))
-      management_group_id = dirname(dirname(file_path))
+      management_group_name = dirname(dirname(file_path))
       file_path           = file_path
     }
   }
@@ -27,8 +27,8 @@ resource "azurerm_policy_set_definition" "initiatives" {
   display_name = each.value.content.properties.displayName
   description  = each.value.content.properties.description
 
-  # Temporarily hardcoded for testing - using full resource ID format
-  management_group_id = "/providers/Microsoft.Management/managementGroups/plbtf-sandbox-test"
+  # Dynamically extract management group from folder structure
+  management_group_id = "/providers/Microsoft.Management/managementGroups/${each.value.management_group_name}"
 
   metadata = jsonencode(each.value.content.properties.metadata)
 
