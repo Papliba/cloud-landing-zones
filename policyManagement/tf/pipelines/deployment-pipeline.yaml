@@ -438,7 +438,6 @@ stages:
         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
 - stage: test_plan
   displayName: 'test_plan'
-  dependsOn: dev_deploy
   jobs:
   - job: plan
     displayName: 'plan and validate'
@@ -520,7 +519,6 @@ stages:
 
 - stage: nonprod_plan
   displayName: 'nonprod_plan'
-  dependsOn: test_deploy
   jobs:
   - job: plan
     displayName: 'plan and validate'
@@ -602,7 +600,6 @@ stages:
 
 - stage: prod_plan
   displayName: 'prod_plan'
-  dependsOn: nonprod_deploy
   jobs:
   - job: plan
     displayName: 'plan and validate'
