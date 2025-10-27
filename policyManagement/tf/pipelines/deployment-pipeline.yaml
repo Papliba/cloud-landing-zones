@@ -124,23 +124,23 @@ stages:
         workingDirectory: $(System.DefaultWorkingDirectory)
       displayName: 'Azure Policy Deployment Summary'
 
-#     - task: AzureCLI@2
-#       inputs:
-#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-#         scriptType: 'bash'
-#         scriptLocation: 'inlineScript' # 'scriptPath'
-#         # scriptPath: '/pathtoscript'
-#         inlineScript: |
-#           terraform init
-#           terraform validate
-#           terraform plan -out=tfplan
-#           # terraform plan -out=tfplan -var="environment=dev"
-#         # arguments: # string. Alias: scriptArguments. Script Arguments.
-#         workingDirectory: $(workingDirectory)
-#         failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
-#       displayName: 'plan'
-#       env:
-#         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript' # 'scriptPath'
+        # scriptPath: '/pathtoscript'
+        inlineScript: |
+          terraform init
+          terraform validate
+          terraform plan -out=tfplan
+          # terraform plan -out=tfplan -var="environment=dev"
+        # arguments: # string. Alias: scriptArguments. Script Arguments.
+        workingDirectory: $(workingDirectory)
+        failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
+      displayName: 'plan'
+      env:
+        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
 
 #     - task: PublishPipelineArtifact@1
 #       inputs:

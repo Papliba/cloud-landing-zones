@@ -10,3 +10,6 @@ tsconfig.tsbuildinfo
 !jest.config.js
 !setup.js
 *.tfstate
+
+# Claude Code MCP Memory
+.claude/memory.jsonl
