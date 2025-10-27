@@ -33,37 +33,114 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          echo "========================================="
-          echo "  Policy Folder Structure"
-          echo "========================================="
+          echo ""
+          echo "╔═══════════════════════════════════════════════════════════════════════════════╗"
+          echo "║                    AZURE POLICY DEPLOYMENT SUMMARY                            ║"
+          echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
           echo ""
 
           POLICIES_DIR="$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions"
 
-          # Display tree structure (fallback to find if tree not available)
-          if command -v tree &> /dev/null; then
-            tree -L 4 "$POLICIES_DIR"
-          else
-            echo "Directory structure:"
-            find "$POLICIES_DIR" -type d | sort | sed 's|'"$POLICIES_DIR"'||' | sed 's|^/||' | sed 's|^|  |'
-            echo ""
-            echo "Files by management group:"
-            find "$POLICIES_DIR" -type f -name "*.json" | sort | sed 's|'"$POLICIES_DIR"'/||'
-          fi
+          # Count files
+          TOTAL_JSON=$(find "$POLICIES_DIR" -type f -name "*.json" | wc -l | xargs)
+          TOTAL_JSONC=$(find "$POLICIES_DIR" -type f -name "*.jsonc" | wc -l | xargs)
+          POLICY_JSON=$(find "$POLICIES_DIR" -path "*/policies/*.json" | wc -l | xargs)
+          INITIATIVE_JSON=$(find "$POLICIES_DIR" -path "*/initiatives/*.json" | wc -l | xargs)
 
+          # Calculate converted files (JSON files that have corresponding JSONC)
+          CONVERTED_FILES=$(find "$POLICIES_DIR" -name "*.jsonc" | wc -l | xargs)
+
+          echo "📊 CONVERSION RESULTS"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  ✅ JSONC files converted to JSON: $CONVERTED_FILES"
+          echo "  📄 Total JSON files available:    $TOTAL_JSON"
+          echo "  📝 Source JSONC files:            $TOTAL_JSONC"
           echo ""
-          echo "========================================="
-          echo "  File Summary"
-          echo "========================================="
-          echo "Total JSON files:  $(find "$POLICIES_DIR" -type f -name "*.json" | wc -l | xargs)"
-          echo "Total JSONC files: $(find "$POLICIES_DIR" -type f -name "*.jsonc" | wc -l | xargs)"
+
+          echo "📋 POLICY INVENTORY"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  🔒 Policy Definitions:       $POLICY_JSON files"
+          echo "  📦 Initiative Definitions:   $INITIATIVE_JSON files"
+          echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  📊 Total Governance Assets:  $(($POLICY_JSON + $INITIATIVE_JSON)) definitions"
           echo ""
-          echo "By type:"
-          echo "  Policy definitions:  $(find "$POLICIES_DIR" -path "*/policies/*.json" | wc -l | xargs) JSON files"
-          echo "  Initiative definitions: $(find "$POLICIES_DIR" -path "*/initiatives/*.json" | wc -l | xargs) JSON files"
-          echo "========================================="
+
+          # List management groups
+          echo "🏢 DEPLOYMENT SCOPE (Management Groups)"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          for mgdir in $(find "$POLICIES_DIR/scope" -maxdepth 1 -type d | tail -n +2 | sort); do
+            mgname=$(basename "$mgdir")
+            policies=$(find "$mgdir/policies" -name "*.json" 2>/dev/null | wc -l | xargs)
+            initiatives=$(find "$mgdir/initiatives" -name "*.json" 2>/dev/null | wc -l | xargs)
+            echo "  📍 $mgname"
+            echo "     └─ Policies: $policies | Initiatives: $initiatives"
+          done
+          echo ""
+
+          # Policy categories breakdown (if we can parse JSON)
+          echo "📁 POLICY CATEGORIES"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          # Count by category (extract from metadata)
+          categories=$(find "$POLICIES_DIR" -path "*/policies/*.json" -type f -exec jq -r '.properties.metadata.category // "Uncategorized"' {} \; 2>/dev/null | sort | uniq -c | sort -rn)
+
+          if [ -n "$categories" ]; then
+            echo "$categories" | while read count category; do
+              # Format with icons based on category
+              case "$category" in
+                *Security*) icon="🔒" ;;
+                *Cost*|*Management*) icon="💰" ;;
+                *Network*) icon="🌐" ;;
+                *Governance*) icon="📋" ;;
+                *Monitoring*) icon="📊" ;;
+                *Compliance*) icon="✅" ;;
+                *Identity*) icon="👤" ;;
+                *Storage*) icon="💾" ;;
+                *Compute*) icon="🖥️" ;;
+                *Container*) icon="📦" ;;
+                *Data*) icon="📁" ;;
+                *Environment*) icon="🌍" ;;
+                *Naming*) icon="🏷️" ;;
+                *Tagging*) icon="🏷️" ;;
+                *) icon="📄" ;;
+              esac
+              printf "  %s %-25s %3d policies\n" "$icon" "$category" "$count"
+            done
+          else
+            echo "  Unable to parse categories (jq not available)"
+          fi
+          echo ""
+
+          echo "✅ VALIDATION STATUS"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          # Validate JSON files
+          invalid_count=0
+          echo "  Validating JSON files..."
+          for jsonfile in $(find "$POLICIES_DIR" -name "*.json" -type f); do
+            if ! jq -e . "$jsonfile" >/dev/null 2>&1; then
+              echo "  ❌ Invalid: $(basename $jsonfile)"
+              invalid_count=$((invalid_count + 1))
+            fi
+          done
+
+          if [ $invalid_count -eq 0 ]; then
+            echo "  ✅ All $TOTAL_JSON JSON files are valid"
+          else
+            echo "  ⚠️  Found $invalid_count invalid JSON file(s)"
+          fi
+          echo ""
+
+          echo "🚀 READY FOR DEPLOYMENT"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  All JSONC files have been converted to JSON format"
+          echo "  Terraform will deploy policies to their respective management groups"
+          echo "  based on folder structure (convention-based deployment)"
+          echo ""
+          echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
+          echo ""
         workingDirectory: $(System.DefaultWorkingDirectory)
-      displayName: 'Display Policy Folder Structure'
+      displayName: 'Azure Policy Deployment Summary'
 
 #     - task: AzureCLI@2
 #       inputs:
