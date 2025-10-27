@@ -3,8 +3,8 @@
   // Purpose: Assign the subscription governance initiative to enforce naming conventions
   // Scope: Sandbox Test Management Group
 
-  // Unique identifier for this assignment
-  "name": "assign-subscription-governance",
+  // Unique identifier for this assignment (max 24 chars)
+  "name": "assign-sub-governance",
 
   "properties": {
     // Human-readable name displayed in Azure Portal
