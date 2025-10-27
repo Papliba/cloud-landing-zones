@@ -416,14 +416,17 @@ stages:
       inputs:
         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
         scriptType: 'bash'
-        scriptLocation: 'inlineScript' # 'scriptPath'
-        # scriptPath: '/pathtoscript'
+        scriptLocation: 'inlineScript'
         inlineScript: |
           terraform init
+
+          # Remove problematic policy from state to allow fresh creation
+          echo "Removing enforce-certificate-renewal from Terraform state..."
+          terraform state rm 'azurerm_policy_definition.policies["plbtf-sandbox-test-enforce-certificate-renewal"]' || echo "Policy not found in state, continuing..."
+
           terraform apply -auto-approve tfplan
-        # arguments: # string. Alias: scriptArguments. Script Arguments.
         workingDirectory: $(workingDirectory)
-        failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
+        failOnStandardError: false
       displayName: 'apply'
       env:
         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
