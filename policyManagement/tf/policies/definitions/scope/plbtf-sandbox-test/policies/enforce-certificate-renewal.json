@@ -23,8 +23,8 @@
           "displayName": "Effect",
           "description": "Enable or disable the execution of the policy"
         },
-        "allowedValues": ["Audit", "Disabled"],
-        "defaultValue": "Audit"
+        "allowedValues": ["AuditIfNotExists", "Disabled"],
+        "defaultValue": "AuditIfNotExists"
       },
       "daysBeforeExpiry": {
         "type": "Integer",
@@ -41,16 +41,23 @@
         "allOf": [
           {
             "field": "type",
-            "equals": "Microsoft.KeyVault/vaults/certificates"
+            "equals": "Microsoft.KeyVault/vaults"
           },
           {
-            "value": "[utcNow()]",
-            "greaterOrEquals": "[addDays(field('Microsoft.KeyVault/vaults/certificates/attributes.exp'), mul(-1, parameters('daysBeforeExpiry')))]"
+            "value": "[parameters('daysBeforeExpiry')]",
+            "greater": 0
           }
         ]
       },
       "then": {
-        "effect": "[parameters('effect')]"
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.KeyVault/vaults/certificates",
+          "existenceCondition": {
+            "field": "Microsoft.KeyVault/vaults/certificates/attributes.enabled",
+            "equals": true
+          }
+        }
       }
     }
   }

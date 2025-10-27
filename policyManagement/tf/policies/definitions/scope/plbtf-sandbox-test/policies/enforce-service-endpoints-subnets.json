@@ -44,21 +44,29 @@
             "notIn": ["GatewaySubnet", "AzureFirewallSubnet", "AzureBastionSubnet"]
           },
           {
-            "count": {
-              "value": "[parameters('requiredServiceEndpoints')]",
-              "name": "requiredEndpoint",
-              "where": {
+            "anyOf": [
+              {
+                "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]",
+                "exists": "false"
+              },
+              {
                 "count": {
-                  "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*].service",
+                  "value": "[parameters('requiredServiceEndpoints')]",
+                  "name": "requiredEndpoint",
                   "where": {
-                    "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*].service",
-                    "equals": "[current('requiredEndpoint')]"
+                    "count": {
+                      "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*]",
+                      "where": {
+                        "field": "Microsoft.Network/virtualNetworks/subnets/serviceEndpoints[*].service",
+                        "equals": "[current('requiredEndpoint')]"
+                      }
+                    },
+                    "equals": 0
                   }
                 },
-                "equals": 0
+                "greater": 0
               }
-            },
-            "greater": 0
+            ]
           }
         ]
       },
