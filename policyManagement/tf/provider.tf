@@ -15,10 +15,11 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name  = "tfstate"
+    resource_group_name  = "rg-platform-mi-wi-nonprod-001"
     storage_account_name = "tfstatefilesstatefiles"
     container_name       = "tfstatefiles"
     key                  = "terraform.tfstate"
+    subscription_id      = "0321b3a0-df64-469b-9c1c-e29c144f5f90"
   }
 }
 

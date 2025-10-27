@@ -7,677 +7,340 @@ trigger:
       - policyManagement/tf/**
       - policyManagement/tf/pipelines/deployment-pipeline.yaml
 
-pool: 'selfhosted'
+pool: "selfhosted"
 
 variables:
-  workingDirectory: '$(System.DefaultWorkingDirectory)/policyManagement/tf/'
+  workingDirectory: "$(System.DefaultWorkingDirectory)/policyManagement/tf/"
 
 stages:
-- stage: dev_plan
-  displayName: 'dev_plan'
-  jobs:
-  - job: plan
-    displayName: 'plan and validate'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: |
-          echo ""
-          echo "╔═══════════════════════════════════════════════════════════════════════════════╗"
-          echo "║                    AZURE POLICY DEPLOYMENT SUMMARY                            ║"
-          echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
-          echo ""
-
-          POLICIES_DIR="$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions"
-
-          # Count files
-          TOTAL_JSON=$(find "$POLICIES_DIR" -type f -name "*.json" | wc -l | xargs)
-          TOTAL_JSONC=$(find "$POLICIES_DIR" -type f -name "*.jsonc" | wc -l | xargs)
-          POLICY_JSON=$(find "$POLICIES_DIR" -path "*/policies/*.json" | wc -l | xargs)
-          INITIATIVE_JSON=$(find "$POLICIES_DIR" -path "*/initiatives/*.json" | wc -l | xargs)
-
-          # Calculate converted files (JSON files that have corresponding JSONC)
-          CONVERTED_FILES=$(find "$POLICIES_DIR" -name "*.jsonc" | wc -l | xargs)
-
-          echo "CONVERSION RESULTS"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "  [OK] JSONC files converted to JSON: $CONVERTED_FILES"
-          echo "  Total JSON files available:         $TOTAL_JSON"
-          echo "  Source JSONC files:                 $TOTAL_JSONC"
-          echo ""
-
-          echo "POLICY INVENTORY"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "  Policy Definitions:       $POLICY_JSON files"
-          echo "  Initiative Definitions:   $INITIATIVE_JSON files"
-          echo "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "  Total Governance Assets:  $(($POLICY_JSON + $INITIATIVE_JSON)) definitions"
-          echo ""
-
-          # List management groups
-          echo "DEPLOYMENT SCOPE (Management Groups)"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          for mgdir in $(find "$POLICIES_DIR/scope" -maxdepth 1 -type d | tail -n +2 | sort); do
-            mgname=$(basename "$mgdir")
-            policies=$(find "$mgdir/policies" -name "*.json" 2>/dev/null | wc -l | xargs)
-            initiatives=$(find "$mgdir/initiatives" -name "*.json" 2>/dev/null | wc -l | xargs)
-            echo "  $mgname"
-            echo "     └─ Policies: $policies | Initiatives: $initiatives"
-          done
-          echo ""
-
-          # Policy categories breakdown (if we can parse JSON)
-          echo "POLICY CATEGORIES"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-          # Count by category (extract from metadata)
-          categories=$(find "$POLICIES_DIR" -path "*/policies/*.json" -type f -exec jq -r '.properties.metadata.category // "Uncategorized"' {} \; 2>/dev/null | sort | uniq -c | sort -rn)
-
-          if [ -n "$categories" ]; then
-            echo "$categories" | while read count category; do
-              printf "  %-30s %3d policies\n" "$category" "$count"
-            done
-          else
-            echo "  Unable to parse categories (jq not available)"
-          fi
-          echo ""
-
-          echo "VALIDATION STATUS"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-          # Validate JSON files
-          invalid_count=0
-          echo "  Validating JSON files..."
-          for jsonfile in $(find "$POLICIES_DIR" -name "*.json" -type f); do
-            if ! jq -e . "$jsonfile" >/dev/null 2>&1; then
-              echo "  [ERROR] Invalid: $(basename $jsonfile)"
-              invalid_count=$((invalid_count + 1))
-            fi
-          done
-
-          if [ $invalid_count -eq 0 ]; then
-            echo "  [OK] All $TOTAL_JSON JSON files are valid"
-          else
-            echo "  [WARN] Found $invalid_count invalid JSON file(s)"
-          fi
-          echo ""
-
-          echo "READY FOR DEPLOYMENT"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "  All JSONC files have been converted to JSON format"
-          echo "  Terraform will deploy policies to their respective management groups"
-          echo "  based on folder structure (convention-based deployment)"
-          echo ""
-          echo "╚═══════════════════════════════════════════════════════════════════════════════╝"
-          echo ""
-        workingDirectory: $(System.DefaultWorkingDirectory)
-      displayName: 'Azure Policy Deployment Summary'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript' # 'scriptPath'
-        # scriptPath: '/pathtoscript'
-        inlineScript: |
-          terraform init
-          terraform validate
-          terraform plan -out=tfplan -var="environment=-dev" -parallelism=30
-          terraform show -json tfplan > tfplan.json
-          # terraform plan -out=tfplan -var="environment=dev" -parallelism=30
-        # arguments: # string. Alias: scriptArguments. Script Arguments.
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: true # boolean. Fail on Standard Error. Default: false.
-      displayName: 'Terraform Plan'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: |
-          # Install terraform-visual if not present
-          if ! command -v terraform-visual &> /dev/null; then
-            npm install -g @terraform-visual/cli 2>/dev/null || \
-            pip3 install terraform-visual 2>/dev/null || \
-            echo "[WARN] Could not install terraform-visual, generating custom HTML"
-          fi
-
-          # Generate HTML report
-          PLAN_JSON="$(workingDirectory)/tfplan.json"
-          REPORT_DIR="$(Build.ArtifactStagingDirectory)/terraform-report"
-          mkdir -p "$REPORT_DIR"
-
-          # Read and process the plan JSON
-          PLAN_DATA=$(cat "$PLAN_JSON" | jq -c '.')
-
-          # Create a beautiful HTML report with embedded data
-          cat > "$REPORT_DIR/plan-report.html" << 'EOF'
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Azure Policy Terraform Plan Report</title>
-              <style>
-                  * { margin: 0; padding: 0; box-sizing: border-box; }
-                  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; padding: 20px; }
-                  .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-                  .header { background: linear-gradient(135deg, #0078d4 0%, #00bcf2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; }
-                  .header h1 { font-size: 28px; margin-bottom: 10px; }
-                  .header .meta { opacity: 0.9; font-size: 14px; }
-                  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 30px; background: #fafafa; border-bottom: 1px solid #e0e0e0; }
-                  .summary-card { background: white; padding: 20px; border-radius: 6px; border-left: 4px solid #0078d4; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-                  .summary-card .value { font-size: 32px; font-weight: bold; color: #0078d4; margin: 10px 0; }
-                  .summary-card .label { color: #666; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
-                  .content { padding: 30px; }
-                  .section { margin-bottom: 30px; }
-                  .section-title { font-size: 20px; color: #333; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #0078d4; }
-                  .resource-group { margin-bottom: 20px; background: #fafafa; border-radius: 6px; overflow: hidden; }
-                  .resource-header { background: #f0f0f0; padding: 15px 20px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-                  .resource-header:hover { background: #e8e8e8; }
-                  .resource-details { padding: 20px; display: none; }
-                  .resource-details.active { display: block; }
-                  .resource-item { padding: 15px; margin-bottom: 10px; border-radius: 4px; border-left: 4px solid #28a745; background: #f8fff9; }
-                  .resource-item.create { border-left-color: #28a745; background: #f8fff9; }
-                  .resource-item.update { border-left-color: #ffc107; background: #fffdf7; }
-                  .resource-item.delete { border-left-color: #dc3545; background: #fff8f8; }
-                  .resource-name { font-weight: 600; color: #333; margin-bottom: 8px; }
-                  .resource-type { color: #666; font-size: 13px; font-family: monospace; background: #f0f0f0; padding: 2px 8px; border-radius: 3px; display: inline-block; }
-                  .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
-                  .badge.create { background: #d4edda; color: #155724; }
-                  .badge.update { background: #fff3cd; color: #856404; }
-                  .badge.delete { background: #f8d7da; color: #721c24; }
-                  .footer { background: #fafafa; padding: 20px 30px; border-top: 1px solid #e0e0e0; text-align: center; color: #666; font-size: 13px; }
-                  .toggle-icon { transition: transform 0.3s; }
-                  .toggle-icon.rotated { transform: rotate(180deg); }
-                  pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
-              </style>
-          </head>
-          <body>
-              <div class="container">
-                  <div class="header">
-                      <h1>Azure Policy Terraform Deployment Plan</h1>
-                      <div class="meta">
-                          <div>Build: BUILD_NUMBER | Date: BUILD_DATE</div>
-                          <div>Branch: main | Environment: Development</div>
-                      </div>
-                  </div>
-
-                  <div class="summary">
-                      <div class="summary-card">
-                          <div class="label">To Add</div>
-                          <div class="value" id="add-count">0</div>
-                      </div>
-                      <div class="summary-card">
-                          <div class="label">To Change</div>
-                          <div class="value" id="change-count">0</div>
-                      </div>
-                      <div class="summary-card">
-                          <div class="label">To Destroy</div>
-                          <div class="value" id="destroy-count">0</div>
-                      </div>
-                      <div class="summary-card">
-                          <div class="label">Total Resources</div>
-                          <div class="value" id="total-count">0</div>
-                      </div>
-                  </div>
-
-                  <div class="content">
-                      <div class="section">
-                          <h2 class="section-title">Policy Definitions</h2>
-                          <div id="policy-definitions"></div>
-                      </div>
-
-                      <div class="section">
-                          <h2 class="section-title">Policy Initiatives (Policy Sets)</h2>
-                          <div id="policy-initiatives"></div>
-                      </div>
-
-                      <div class="section">
-                          <h2 class="section-title">Plan Output</h2>
-                          <div id="plan-output"></div>
-                      </div>
-                  </div>
-
-                  <div class="footer">
-                      Generated by Azure DevOps Pipeline | Cloud Landing Zones - Policy Management
-                  </div>
-              </div>
-
-              <script>
-                  // Embedded plan data (will be replaced by actual data)
-                  const TERRAFORM_PLAN_DATA = PLAN_DATA_PLACEHOLDER;
-
-                  // Parse plan data and populate report
-                  function loadPlanData() {
-                      try {
-                          const plan = TERRAFORM_PLAN_DATA;
-
-                          let addCount = 0, changeCount = 0, destroyCount = 0;
-                          const policyDefs = [];
-                          const policyInits = [];
-
-                          // Process resource changes
-                          if (plan.resource_changes) {
-                              plan.resource_changes.forEach(change => {
-                                  const actions = change.change?.actions || [];
-
-                                  if (actions.includes('create')) addCount++;
-                                  if (actions.includes('update')) changeCount++;
-                                  if (actions.includes('delete')) destroyCount++;
-
-                                  // Categorize by resource type
-                                  if (change.type === 'azurerm_policy_definition') {
-                                      policyDefs.push(change);
-                                  } else if (change.type === 'azurerm_policy_set_definition') {
-                                      policyInits.push(change);
-                                  }
-                              });
-                          }
-
-                          // Update summary
-                          document.getElementById('add-count').textContent = addCount;
-                          document.getElementById('change-count').textContent = changeCount;
-                          document.getElementById('destroy-count').textContent = destroyCount;
-                          document.getElementById('total-count').textContent = addCount + changeCount + destroyCount;
-
-                          // Render policy definitions
-                          renderResources('policy-definitions', policyDefs);
-                          renderResources('policy-initiatives', policyInits);
-
-                          // Show plan output
-                          if (plan.format_version) {
-                              document.getElementById('plan-output').innerHTML = '<pre>' + JSON.stringify(plan, null, 2).substring(0, 5000) + '...</pre>';
-                          }
-                      } catch (error) {
-                          console.error('Error loading plan:', error);
-                      }
-                  }
-
-                  function renderResources(containerId, resources) {
-                      const container = document.getElementById(containerId);
-                      if (!resources || resources.length === 0) {
-                          container.innerHTML = '<p style="color: #666; padding: 20px;">No changes planned</p>';
-                          return;
-                      }
-
-                      resources.forEach((resource, index) => {
-                          const actions = resource.change?.actions || [];
-                          const action = actions.includes('create') ? 'create' : actions.includes('update') ? 'update' : 'delete';
-                          const badge = action === 'create' ? 'Create' : action === 'update' ? 'Update' : 'Delete';
-
-                          const item = document.createElement('div');
-                          item.className = 'resource-group';
-                          item.innerHTML = `
-                              <div class="resource-header" onclick="toggleDetails(${index}, '${containerId}')">
-                                  <div>
-                                      <span class="badge ${action}">${badge}</span>
-                                      <span class="resource-type">${resource.type}</span>
-                                      <span style="margin-left: 10px;">${resource.name}</span>
-                                  </div>
-                                  <span class="toggle-icon" id="icon-${containerId}-${index}">▼</span>
-                              </div>
-                              <div class="resource-details" id="details-${containerId}-${index}">
-                                  <div><strong>Address:</strong> ${resource.address}</div>
-                                  <div><strong>Management Group:</strong> ${resource.change?.after?.management_group_id || 'N/A'}</div>
-                                  ${resource.change?.after?.display_name ? '<div><strong>Display Name:</strong> ' + resource.change.after.display_name + '</div>' : ''}
-                              </div>
-                          `;
-                          container.appendChild(item);
-                      });
-                  }
-
-                  function toggleDetails(index, containerId) {
-                      const details = document.getElementById(`details-${containerId}-${index}`);
-                      const icon = document.getElementById(`icon-${containerId}-${index}`);
-                      details.classList.toggle('active');
-                      icon.classList.toggle('rotated');
-                  }
-
-                  // Replace placeholders
-                  document.body.innerHTML = document.body.innerHTML
-                      .replace(/BUILD_NUMBER/g, 'BUILD_BUILDNUMBER')
-                      .replace(/BUILD_DATE/g, new Date().toISOString().split('T')[0]);
-
-                  // Load plan data
-                  loadPlanData();
-              </script>
-          </body>
-          </html>
-          EOF
-
-          # Copy tfplan.json to report directory
-          cp "$PLAN_JSON" "$REPORT_DIR/tfplan.json"
-
-          # Escape the JSON data for safe embedding in HTML
-          ESCAPED_PLAN_DATA=$(echo "$PLAN_DATA" | sed 's/\\/\\\\/g' | sed 's/`/\\`/g')
-
-          # Replace placeholders in HTML
-          sed -i "s/BUILD_BUILDNUMBER/$(Build.BuildNumber)/g" "$REPORT_DIR/plan-report.html" 2>/dev/null || \
-          sed -i '' "s/BUILD_BUILDNUMBER/$(Build.BuildNumber)/g" "$REPORT_DIR/plan-report.html"
-
-          # Inject the plan data into the HTML
-          # Use a temporary file to handle special characters properly
-          TMP_FILE=$(mktemp)
-          awk -v data="$PLAN_DATA" '{gsub(/PLAN_DATA_PLACEHOLDER/, data)}1' "$REPORT_DIR/plan-report.html" > "$TMP_FILE"
-          mv "$TMP_FILE" "$REPORT_DIR/plan-report.html"
-
-          echo ""
-          echo "[OK] Terraform plan HTML report generated at: $REPORT_DIR/plan-report.html"
-          echo ""
-        workingDirectory: $(System.DefaultWorkingDirectory)
-        failOnStderr: false
-      displayName: 'Generate Plan HTML Report'
-
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(Build.ArtifactStagingDirectory)/terraform-report'
-        artifact: 'terraform-plan-report'
-        publishLocation: 'pipeline'
-      displayName: 'Publish Terraform Plan Report'
-
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(workingDirectory)/tfplan'
-        artifact: 'terraform-plan'
-        publishLocation: 'pipeline'
-      displayName: 'Publish Terraform Plan' 
-
-- stage: dev_deploy
-  displayName: 'dev_deploy'
-  dependsOn: dev_plan
-  jobs:
-  - job: apply
-    displayName: 'apply'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'current'
-        artifactName: 'terraform-plan'
-        targetPath: '$(workingDirectory)'
-      displayName: 'Download Terraform Plan'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init
-          terraform apply -auto-approve -parallelism=30 tfplan
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: false
-      displayName: 'apply'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-- stage: test_plan
-  displayName: 'test_plan'
-  dependsOn: dev_deploy
-  jobs:
-  - job: plan
-    displayName: 'plan and validate'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init
-          terraform validate
-          terraform plan -out=tfplan-test -var="environment=-test" -parallelism=30
-          terraform show -json tfplan-test > tfplan-test.json
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: true
-      displayName: 'Terraform Plan (Test)'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(workingDirectory)/tfplan-test'
-        artifact: 'terraform-plan-test'
-        publishLocation: 'pipeline'
-      displayName: 'Publish Terraform Plan (Test)'
-
-- stage: test_deploy
-  displayName: 'test_deploy'
-  dependsOn: test_plan
-  jobs:
-  - job: apply
-    displayName: 'apply'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'current'
-        artifactName: 'terraform-plan-test'
-        targetPath: '$(workingDirectory)'
-      displayName: 'Download Terraform Plan (Test)'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init
-          terraform apply -auto-approve -parallelism=30 tfplan-test
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: false
-      displayName: 'apply'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-
-- stage: nonprod_plan
-  displayName: 'nonprod_plan'
-  dependsOn: test_deploy
-  jobs:
-  - job: plan
-    displayName: 'plan and validate'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init
-          terraform validate
-          terraform plan -out=tfplan-nonprod -var="environment=-nonprod" -parallelism=30
-          terraform show -json tfplan-nonprod > tfplan-nonprod.json
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: true
-      displayName: 'Terraform Plan (NonProd)'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(workingDirectory)/tfplan-nonprod'
-        artifact: 'terraform-plan-nonprod'
-        publishLocation: 'pipeline'
-      displayName: 'Publish Terraform Plan (NonProd)'
-
-- stage: nonprod_deploy
-  displayName: 'nonprod_deploy'
-  dependsOn: nonprod_plan
-  jobs:
-  - job: apply
-    displayName: 'apply'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'current'
-        artifactName: 'terraform-plan-nonprod'
-        targetPath: '$(workingDirectory)'
-      displayName: 'Download Terraform Plan (NonProd)'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init
-          terraform apply -auto-approve -parallelism=30 tfplan-nonprod
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: false
-      displayName: 'apply'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-
-- stage: prod_plan
-  displayName: 'prod_plan'
-  dependsOn: nonprod_deploy
-  jobs:
-  - job: plan
-    displayName: 'plan and validate'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init
-          terraform validate
-          terraform plan -out=tfplan-prod -var="environment=" -parallelism=30
-          terraform show -json tfplan-prod > tfplan-prod.json
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: true
-      displayName: 'Terraform Plan (Prod)'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(workingDirectory)/tfplan-prod'
-        artifact: 'terraform-plan-prod'
-        publishLocation: 'pipeline'
-      displayName: 'Publish Terraform Plan (Prod)'
-
-- stage: prod_deploy
-  displayName: 'prod_deploy'
-  dependsOn: prod_plan
-  jobs:
-  - job: apply
-    displayName: 'apply'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'current'
-        artifactName: 'terraform-plan-prod'
-        targetPath: '$(workingDirectory)'
-      displayName: 'Download Terraform Plan (Prod)'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init
-          terraform apply -auto-approve -parallelism=30 tfplan-prod
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: false
-      displayName: 'apply'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+  - stage: dev_deploy
+    displayName: "dev_deploy"
+    jobs:
+      - job: apply
+        displayName: "apply"
+        steps:
+          - checkout: self
+          - task: PowerShell@2
+            inputs:
+              targetType: "inline"
+              script: |
+                Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+                Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+                # Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+              failOnStderr: false
+            displayName: "Convert JSONC to JSON"
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: "mi-platform-mg-wi-nonprod-001"
+              scriptType: "bash"
+              scriptLocation: "inlineScript"
+              inlineScript: |
+                terraform init
+                terraform plan -var="environment=-dev"
+                terraform apply -auto-approve -var="environment=-dev"
+              workingDirectory: $(workingDirectory)
+              failOnStandardError: false
+            displayName: "apply"
+            env:
+              ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#           # - task: DownloadPipelineArtifact@2
+#           #   inputs:
+#           #     buildType: "current"
+#           #     artifactName: "terraform-plan"
+#           #     targetPath: "$(workingDirectory)"
+#           #   displayName: "Download Terraform Plan"
+#           #
+#           - task: AzureCLI@2
+#             inputs:
+#               azureSubscription: "mi-platform-mg-wi-nonprod-001"
+#               scriptType: "bash"
+#               scriptLocation: "inlineScript"
+#               inlineScript: |
+#                 terraform init
+#                 # terraform apply -auto-approve
+#                 terraform apply -auto-approve -out=tfplan -var="environment=-dev"
+#               workingDirectory: $(workingDirectory)
+#               failOnStandardError: false
+#             displayName: "apply"
+#             env:
+#               ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#
+#     # - stage: dev_plan
+#     #   displayName: "dev_plan"
+#     #   jobs:
+#     #     - job: plan
+#     #       displayName: "plan and validate"
+#     #       steps:
+#     #         - checkout: self
+#     #
+#     #         - task: PowerShell@2
+#     #           inputs:
+#     #             targetType: "inline"
+#     #             script: |
+#     #               Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#     #               # Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#     #             failOnStderr: false
+#     #           displayName: "Convert JSONC to JSON"
+#     #
+#     #         - task: AzureCLI@2
+#     #           inputs:
+#     #             azureSubscription: "mi-platform-mg-wi-nonprod-001"
+#     #             scriptType: "bash"
+#     #             scriptLocation: "inlineScript" # 'scriptPath'
+#     #             # scriptPath: '/pathtoscript'
+#     #             inlineScript: |
+#     #               terraform init
+#     #               terraform validate
+#     #               terraform plan -out=tfplan -var="environment=-dev"
+#     #               # terraform show -json tfplan > tfplan.json
+#     #               # terraform plan -out=tfplan -var="environment=dev"
+#     #             # arguments: # string. Alias: scriptArguments. Script Arguments.
+#     #             workingDirectory: $(workingDirectory)
+#     #             failOnStandardError: true # boolean. Fail on Standard Error. Default: false.
+#     #           displayName: "Terraform Plan"
+#     #           env:
+#     #             ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#
+#     # - stage: test_plan
+#     #   displayName: "test_plan"
+#     #   jobs:
+#     #     - job: plan
+#     #       displayName: "plan and validate"
+#     #       steps:
+#     #         - checkout: self
+#     #
+#     #         - task: PowerShell@2
+#     #           inputs:
+#     #             targetType: "inline"
+#     #             script: |
+#     #               Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#     #             failOnStderr: false
+#     #           displayName: "Convert JSONC to JSON"
+#     #
+#     #         - task: AzureCLI@2
+#     #           inputs:
+#     #             azureSubscription: "mi-platform-mg-wi-nonprod-001"
+#     #             scriptType: "bash"
+#     #             scriptLocation: "inlineScript"
+#     #             inlineScript: |
+#     #               terraform init
+#     #               terraform validate
+#     #               terraform plan -out=tfplan-test -var="environment=-test" -parallelism=30
+#     #               terraform show -json tfplan-test > tfplan-test.json
+#     #             workingDirectory: $(workingDirectory)
+#     #             failOnStandardError: true
+#     #           displayName: "Terraform Plan (Test)"
+#     #           env:
+#     #             ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#     #
+#     #         - task: PublishPipelineArtifact@1
+#     #           inputs:
+#     #             targetPath: "$(workingDirectory)/tfplan-test"
+#     #             artifact: "terraform-plan-test"
+#     #             publishLocation: "pipeline"
+#     #           displayName: "Publish Terraform Plan (Test)"
+#     #
+#     # - stage: test_deploy
+#     #   displayName: "test_deploy"
+#     #   dependsOn: test_plan
+#     #   jobs:
+#     #     - job: apply
+#     #       displayName: "apply"
+#     #       steps:
+#     #         - checkout: self
+#     #
+#     #         - task: PowerShell@2
+#     #           inputs:
+#     #             targetType: "inline"
+#     #             script: |
+#     #               Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#     #             failOnStderr: false
+#     #           displayName: "Convert JSONC to JSON"
+#     #
+#     #         - task: DownloadPipelineArtifact@2
+#     #           inputs:
+#     #             buildType: "current"
+#     #             artifactName: "terraform-plan-test"
+#     #             targetPath: "$(workingDirectory)"
+#     #           displayName: "Download Terraform Plan (Test)"
+#     #
+#     #         - task: AzureCLI@2
+#     #           inputs:
+#     #             azureSubscription: "mi-platform-mg-wi-nonprod-001"
+#     #             scriptType: "bash"
+#     #             scriptLocation: "inlineScript"
+#     #             inlineScript: |
+#     #               terraform init
+#     #               terraform apply -auto-approve -parallelism=30 tfplan-test
+#     #             workingDirectory: $(workingDirectory)
+#     #             failOnStandardError: false
+#     #           displayName: "apply"
+#     #           env:
+#     #             ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#     #
+#     # - stage: nonprod_plan
+#     #   displayName: "nonprod_plan"
+#     #   jobs:
+#     #     - job: plan
+#     #       displayName: "plan and validate"
+#     #       steps:
+#     #         - checkout: self
+#     #
+#     #         - task: PowerShell@2
+#     #           inputs:
+#     #             targetType: "inline"
+#     #             script: |
+#     #               Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#     #             failOnStderr: false
+#     #           displayName: "Convert JSONC to JSON"
+#     #
+#     #         - task: AzureCLI@2
+#     #           inputs:
+#     #             azureSubscription: "mi-platform-mg-wi-nonprod-001"
+#     #             scriptType: "bash"
+#     #             scriptLocation: "inlineScript"
+#     #             inlineScript: |
+#     #               terraform init
+#     #               terraform validate
+#     #               terraform plan -out=tfplan-nonprod -var="environment=-nonprod" -parallelism=30
+#     #               terraform show -json tfplan-nonprod > tfplan-nonprod.json
+#     #             workingDirectory: $(workingDirectory)
+#     #             failOnStandardError: true
+#     #           displayName: "Terraform Plan (NonProd)"
+#     #           env:
+#     #             ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#     #
+#     #         - task: PublishPipelineArtifact@1
+#     #           inputs:
+#     #             targetPath: "$(workingDirectory)/tfplan-nonprod"
+#     #             artifact: "terraform-plan-nonprod"
+#     #             publishLocation: "pipeline"
+#     #           displayName: "Publish Terraform Plan (NonProd)"
+#
+#     # - stage: nonprod_deploy
+#     #   displayName: "nonprod_deploy"
+#     #   dependsOn: nonprod_plan
+#     #   jobs:
+#     #     - job: apply
+#     #       displayName: "apply"
+#     #       steps:
+#     #         - checkout: self
+#     #
+#     #         - task: PowerShell@2
+#     #           inputs:
+#     #             targetType: "inline"
+#     #             script: |
+#     #               Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#     #             failOnStderr: false
+#     #           displayName: "Convert JSONC to JSON"
+#     #
+#     #         - task: DownloadPipelineArtifact@2
+#     #           inputs:
+#     #             buildType: "current"
+#     #             artifactName: "terraform-plan-nonprod"
+#     #             targetPath: "$(workingDirectory)"
+#     #           displayName: "Download Terraform Plan (NonProd)"
+#     #
+#     #         - task: AzureCLI@2
+#     #           inputs:
+#     #             azureSubscription: "mi-platform-mg-wi-nonprod-001"
+#     #             scriptType: "bash"
+#     #             scriptLocation: "inlineScript"
+#     #             inlineScript: |
+#     #               terraform init
+#     #               terraform apply -auto-approve -parallelism=30 tfplan-nonprod
+#     #             workingDirectory: $(workingDirectory)
+#     #             failOnStandardError: false
+#     #           displayName: "apply"
+#     #           env:
+#     #             ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#
+#     # - stage: prod_plan
+#     #   displayName: "prod_plan"
+#     #   jobs:
+#     #     - job: plan
+#     #       displayName: "plan and validate"
+#     #       steps:
+#     #         - checkout: self
+#     #
+#     #         - task: PowerShell@2
+#     #           inputs:
+#     #             targetType: "inline"
+#     #             script: |
+#     #               Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#     #             failOnStderr: false
+#     #           displayName: "Convert JSONC to JSON"
+#     #
+#     #         - task: AzureCLI@2
+#     #           inputs:
+#     #             azureSubscription: "mi-platform-mg-wi-nonprod-001"
+#     #             scriptType: "bash"
+#     #             scriptLocation: "inlineScript"
+#     #             inlineScript: |
+#     #               terraform init
+#     #               terraform validate
+#     #               terraform plan -out=tfplan-prod -var="environment=" -parallelism=30
+#     #               terraform show -json tfplan-prod > tfplan-prod.json
+#     #             workingDirectory: $(workingDirectory)
+#     #             failOnStandardError: true
+#     #           displayName: "Terraform Plan (Prod)"
+#     #           env:
+#     #             ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#     #
+#     #         - task: PublishPipelineArtifact@1
+#     #           inputs:
+#     #             targetPath: "$(workingDirectory)/tfplan-prod"
+#     #             artifact: "terraform-plan-prod"
+#     #             publishLocation: "pipeline"
+#     #           displayName: "Publish Terraform Plan (Prod)"
+#
+#     # - stage: prod_deploy
+#     #   displayName: "prod_deploy"
+#     #   dependsOn: prod_plan
+#     #   jobs:
+#     #     - job: apply
+#     #       displayName: "apply"
+#     #       steps:
+#     #         - checkout: self
+#     #
+#     #         - task: PowerShell@2
+#     #           inputs:
+#     #             targetType: "inline"
+#     #             script: |
+#     #               Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#     #               Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#     #             failOnStderr: false
+#     #           displayName: "Convert JSONC to JSON"
+#     #
+#     #         - task: DownloadPipelineArtifact@2
+#     #           inputs:
+#     #             buildType: "current"
+#     #             artifactName: "terraform-plan-prod"
+#     #             targetPath: "$(workingDirectory)"
+#     #           displayName: "Download Terraform Plan (Prod)"
+#     #
+#     #         - task: AzureCLI@2
+#     #           inputs:
+#     #             azureSubscription: "mi-platform-mg-wi-nonprod-001"
+#     #             scriptType: "bash"
+#     #             scriptLocation: "inlineScript"
+#     #             inlineScript: |
+#     #               terraform init
+#     #               terraform apply -auto-approve -parallelism=30 tfplan-prod
+#     #             workingDirectory: $(workingDirectory)
+#     #             failOnStandardError: false
+#     #           displayName: "apply"
+#     #           env:
+#     #             ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)

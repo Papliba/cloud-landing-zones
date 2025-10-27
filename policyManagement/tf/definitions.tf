@@ -11,16 +11,14 @@ locals {
 }
 
 resource "azurerm_policy_definition" "definitions" {
-  for_each     = local.policy_definitions
-  name         = each.value.content.name
-  policy_type  = "Custom"
-  mode         = each.value.content.properties.mode
-  display_name = each.value.content.properties.displayName
-  description  = each.value.content.properties.description
-  metadata     = jsonencode(each.value.content.properties.metadata)
-  parameters   = jsonencode(each.value.content.properties.parameters)
-  policy_rule  = jsonencode(each.value.content.properties.policyRule)
-  # Dynamically append environment suffix to management group ID
-  # Example: plbtf + -dev = plbtf-dev, plbtf-management + -test = plbtf-management-test
+  for_each            = local.policy_definitions
+  name                = each.value.content.name
+  policy_type         = "Custom"
+  mode                = each.value.content.properties.mode
+  display_name        = each.value.content.properties.displayName
+  description         = each.value.content.properties.description
+  metadata            = jsonencode(each.value.content.properties.metadata)
+  parameters          = jsonencode(each.value.content.properties.parameters)
+  policy_rule         = jsonencode(each.value.content.properties.policyRule)
   management_group_id = "/providers/Microsoft.Management/managementGroups/${each.value.management_group_name}${var.environment}"
 }
