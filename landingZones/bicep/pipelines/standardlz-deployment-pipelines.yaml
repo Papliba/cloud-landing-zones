@@ -4,7 +4,8 @@ trigger:
     - main
   paths:
     include:
-    - bicep/infra/landingZones/params/**
+    - landingZones/bicep/**
+    - landingZones/bicep/pipelines/standardlz-deployment-pipelines.yaml
 
 pool: 'selfhosted'
 
