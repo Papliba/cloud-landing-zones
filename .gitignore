@@ -11,5 +11,8 @@ tsconfig.tsbuildinfo
 !setup.js
 *.tfstate
 
+# Policy JSON files (generated from JSONC in pipeline)
+policyManagement/tf/policies/definitions/**/*.json
+
 # Claude Code MCP Memory
 .claude/memory.jsonl
