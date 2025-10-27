@@ -7,11 +7,12 @@ locals {
   all_policy_files = fileset("${path.module}/policies/definitions/scope", "**/policies/*.json")
 
   # Parse policy files and extract management group from path
+  # fileset returns paths relative to the base directory, e.g., "plbtf-sandbox-test/policies/file.json"
   policy_definitions = {
     for file_path in local.all_policy_files :
-    "${regex("scope/([^/]+)/", file_path)[0]}-${replace(basename(file_path), ".json", "")}" => {
+    "${regex("^([^/]+)/", file_path)[0]}-${replace(basename(file_path), ".json", "")}" => {
       content             = jsondecode(file("${path.module}/policies/definitions/scope/${file_path}"))
-      management_group_id = regex("scope/([^/]+)/", file_path)[0]
+      management_group_id = regex("^([^/]+)/", file_path)[0]
       file_path           = file_path
     }
   }
