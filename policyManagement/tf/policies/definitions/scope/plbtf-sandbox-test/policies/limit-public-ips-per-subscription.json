@@ -40,14 +40,12 @@
       "if": {
         "allOf": [
           {
-            
             "field": "type",
             "equals": "Microsoft.Network/publicIPAddresses"
           },
           {
-            
-            "field": "tags['ip-count-check']",
-            "exists": false
+            "value": "[parameters('maxPublicIPs')]",
+            "less": 1
           }
         ]
       },

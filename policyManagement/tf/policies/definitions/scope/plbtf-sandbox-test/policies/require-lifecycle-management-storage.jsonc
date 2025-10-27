@@ -38,7 +38,7 @@
           },
           {
             // Blob storage capable
-            "field": "Microsoft.Storage/storageAccounts/kind",
+            "field": "Microsoft.Storage/storageAccounts/sku.kind",
             "in": ["StorageV2", "BlobStorage"]
           }
         ]

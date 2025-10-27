@@ -40,14 +40,23 @@
       "if": {
         "allOf": [
           {
-            
             "field": "type",
             "equals": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
           },
           {
-            
-            "field": "tags['external-tenant-peering-approved']",
-            "notEquals": "true"
+            "field": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/remoteVirtualNetwork.id",
+            "exists": "true"
+          },
+          {
+            "count": {
+              "value": "[parameters('allowedTenantIds')]",
+              "name": "allowedTenant",
+              "where": {
+                "field": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings/remoteVirtualNetwork.id",
+                "contains": "[current('allowedTenant')]"
+              }
+            },
+            "equals": 0
           }
         ]
       },

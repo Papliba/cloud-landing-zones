@@ -40,14 +40,12 @@
       "if": {
         "allOf": [
           {
-            // Target Key Vault certificates
             "field": "type",
             "equals": "Microsoft.KeyVault/vaults/certificates"
           },
           {
-            // Check expiration tag (custom implementation)
-            "field": "tags['certificate-expiry-warned']",
-            "notEquals": "true"
+            "value": "[utcNow()]",
+            "greaterOrEquals": "[addDays(field('Microsoft.KeyVault/vaults/certificates/attributes.exp'), mul(-1, parameters('daysBeforeExpiry')))]"
           }
         ]
       },

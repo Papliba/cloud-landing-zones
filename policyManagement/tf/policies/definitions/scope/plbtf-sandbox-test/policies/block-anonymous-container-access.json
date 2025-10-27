@@ -32,14 +32,12 @@
       "if": {
         "allOf": [
           {
-            
             "field": "type",
-            "equals": "Microsoft.Storage/storageAccounts/blobServices/containers"
+            "equals": "Microsoft.Storage/storageAccounts"
           },
           {
-            
-            "field": "Microsoft.Storage/storageAccounts/blobServices/containers/publicAccess",
-            "notEquals": "None"
+            "field": "Microsoft.Storage/storageAccounts/allowBlobPublicAccess",
+            "notEquals": false
           }
         ]
       },
