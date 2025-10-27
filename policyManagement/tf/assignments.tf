@@ -15,8 +15,12 @@ resource "azurerm_management_group_policy_assignment" "assignments" {
   name                 = each.value.content.name
   display_name         = each.value.content.properties.displayName
   description          = each.value.content.properties.description
-  management_group_id  = "/providers/Microsoft.Management/managementGroups/${each.value.management_group_name}"
-  policy_definition_id = each.value.content.properties.policyDefinitionId
+  # Dynamically append environment suffix to management group ID where assignment is created
+  # Example: plbtf-management + -dev = plbtf-management-dev
+  management_group_id  = "/providers/Microsoft.Management/managementGroups/${each.value.management_group_name}${var.environment}"
+  # Replace base management group name with environment-specific name in initiative references
+  # Example: /managementGroups/plbtf/ → /managementGroups/plbtf-dev/
+  policy_definition_id = replace(each.value.content.properties.policyDefinitionId, "/managementGroups/plbtf/", "/managementGroups/plbtf${var.environment}/")
   metadata             = jsonencode(each.value.content.properties.metadata)
   parameters           = jsonencode(each.value.content.properties.parameters)
   enforce              = each.value.content.properties.enforcementMode == "Default" ? true : false

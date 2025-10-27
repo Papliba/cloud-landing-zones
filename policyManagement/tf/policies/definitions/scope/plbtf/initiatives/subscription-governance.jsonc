@@ -47,7 +47,7 @@
     "policyDefinitions": [
       {
         // Reference to the subscription naming convention policy
-        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/plbtf-dev/providers/Microsoft.Authorization/policyDefinitions/enforce-sub-naming-convention",
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/plbtf/providers/Microsoft.Authorization/policyDefinitions/enforce-sub-naming-convention",
 
         // Unique reference ID for this policy within the initiative
         "policyDefinitionReferenceId": "enforce-subscription-naming",

@@ -135,7 +135,7 @@ stages:
         inlineScript: |
           terraform init
           terraform validate
-          terraform plan -out=tfplan
+          terraform plan -out=tfplan -var="environment=-dev"
           terraform show -json tfplan > tfplan.json
           # terraform plan -out=tfplan -var="environment=dev"
         # arguments: # string. Alias: scriptArguments. Script Arguments.

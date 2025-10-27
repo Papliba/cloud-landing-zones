@@ -18,11 +18,15 @@ resource "azurerm_management_group_policy_set_definition" "initiatives" {
   description         = each.value.content.properties.description
   metadata            = jsonencode(each.value.content.properties.metadata)
   parameters          = jsonencode(each.value.content.properties.parameters)
-  management_group_id = "/providers/Microsoft.Management/managementGroups/${each.value.management_group_name}"
+  # Dynamically append environment suffix to management group ID
+  # Example: plbtf + -dev = plbtf-dev, plbtf-management + -test = plbtf-management-test
+  management_group_id = "/providers/Microsoft.Management/managementGroups/${each.value.management_group_name}${var.environment}"
   dynamic "policy_definition_reference" {
     for_each = each.value.content.properties.policyDefinitions
     content {
-      policy_definition_id = policy_definition_reference.value.policyDefinitionId
+      # Replace base management group name with environment-specific name in policy definition references
+      # Example: /managementGroups/plbtf/ → /managementGroups/plbtf-dev/
+      policy_definition_id = replace(policy_definition_reference.value.policyDefinitionId, "/managementGroups/plbtf/", "/managementGroups/plbtf${var.environment}/")
       reference_id         = policy_definition_reference.value.policyDefinitionReferenceId
       parameter_values     = jsonencode(policy_definition_reference.value.parameters)
     }
