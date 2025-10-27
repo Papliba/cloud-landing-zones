@@ -27,6 +27,7 @@ When I ask you to fix an issue or make changes, ALWAYS follow this complete PR w
 ### Commit Message Format
 - Use conventional commits: `fix:`, `feat:`, `docs:`, `refactor:`, `test:`, `chore:`
 - Be concise but descriptive
+- **DO NOT add Claude attribution or co-author tags** - commits should appear as authored solely by the user
 - Examples:
   - `fix: correct policy definition syntax in enforce-naming-convention`
   - `feat: add new management group for security workloads`
