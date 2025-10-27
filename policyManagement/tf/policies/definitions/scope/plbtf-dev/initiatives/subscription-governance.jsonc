@@ -8,7 +8,7 @@
 
   "properties": {
     // Human-readable name displayed in Azure Portal
-    "displayName": "Subscription Governance Initiative",
+    "displayName": "Subscription Governance Initiative management",
 
     // Detailed description of what this initiative does
     "description": "This initiative enforces governance standards for Azure subscriptions including naming conventions and compliance requirements.",
@@ -47,7 +47,7 @@
     "policyDefinitions": [
       {
         // Reference to the subscription naming convention policy
-        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/plbtf-sandbox-test/providers/Microsoft.Authorization/policyDefinitions/enforce-sub-naming-convention",
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/plbtf-dev/providers/Microsoft.Authorization/policyDefinitions/enforce-sub-naming-convention",
 
         // Unique reference ID for this policy within the initiative
         "policyDefinitionReferenceId": "enforce-subscription-naming",

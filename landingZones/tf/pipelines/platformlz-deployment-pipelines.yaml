@@ -5,7 +5,6 @@ trigger:
   paths:
     include:
     - landingZones/tf/**
-    - landingZones/tf/pipelines/platformlz-deployment-pipelines.yaml
 
 pool: 'selfhosted'
 

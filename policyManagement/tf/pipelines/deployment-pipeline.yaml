@@ -140,7 +140,7 @@ stages:
           # terraform plan -out=tfplan -var="environment=dev"
         # arguments: # string. Alias: scriptArguments. Script Arguments.
         workingDirectory: $(workingDirectory)
-        failOnStandardError: false # boolean. Fail on Standard Error. Default: false.
+        failOnStandardError: true # boolean. Fail on Standard Error. Default: false.
       displayName: 'Terraform Plan'
       env:
         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
