@@ -5,6 +5,7 @@ trigger:
   paths:
     include:
     - management-groups/tf/**
+    - management-groups/tf/pipelines/mg-deployment-pipelines.yaml
 
 pool: 'selfhosted'
 

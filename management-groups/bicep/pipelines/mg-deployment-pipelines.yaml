@@ -5,6 +5,7 @@ trigger:
   paths:
     include:
     - management-groups/bicep/**
+    - management-groups/bicep/pipelines/mg-deployment-pipelines.yaml
 
 pool: 'selfhosted'
 
