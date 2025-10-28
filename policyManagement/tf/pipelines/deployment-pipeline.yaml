@@ -27,7 +27,7 @@ stages:
         script: |
           Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+          # Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
         failOnStderr: false
       displayName: 'Convert JSONC to JSON'
 
@@ -412,7 +412,7 @@ stages:
         script: |
           Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+          # Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
         failOnStderr: false
       displayName: 'Convert JSONC to JSON'
 
@@ -436,245 +436,245 @@ stages:
       displayName: 'apply'
       env:
         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-- stage: test_plan
-  displayName: 'test_plan'
-  jobs:
-  - job: plan
-    displayName: 'plan and validate'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init -backend-config="key=policy-management-test.tfstate"
-          terraform validate
-          terraform plan -out=tfplan-test -var="environment=-test" -parallelism=30
-          terraform show -json tfplan-test > tfplan-test.json
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: true
-      displayName: 'Terraform Plan (Test)'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(workingDirectory)/tfplan-test'
-        artifact: 'terraform-plan-test'
-        publishLocation: 'pipeline'
-      displayName: 'Publish Terraform Plan (Test)'
-
-- stage: test_deploy
-  displayName: 'test_deploy'
-  dependsOn: test_plan
-  jobs:
-  - job: apply
-    displayName: 'apply'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'current'
-        artifactName: 'terraform-plan-test'
-        targetPath: '$(workingDirectory)'
-      displayName: 'Download Terraform Plan (Test)'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init -backend-config="key=policy-management-test.tfstate"
-          terraform apply -auto-approve -parallelism=30 tfplan-test
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: false
-      displayName: 'apply'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-
-- stage: nonprod_plan
-  displayName: 'nonprod_plan'
-  jobs:
-  - job: plan
-    displayName: 'plan and validate'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init -backend-config="key=policy-management-nonprod.tfstate"
-          terraform validate
-          terraform plan -out=tfplan-nonprod -var="environment=-nonprod" -parallelism=30
-          terraform show -json tfplan-nonprod > tfplan-nonprod.json
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: true
-      displayName: 'Terraform Plan (NonProd)'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(workingDirectory)/tfplan-nonprod'
-        artifact: 'terraform-plan-nonprod'
-        publishLocation: 'pipeline'
-      displayName: 'Publish Terraform Plan (NonProd)'
-
-- stage: nonprod_deploy
-  displayName: 'nonprod_deploy'
-  dependsOn: nonprod_plan
-  jobs:
-  - job: apply
-    displayName: 'apply'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'current'
-        artifactName: 'terraform-plan-nonprod'
-        targetPath: '$(workingDirectory)'
-      displayName: 'Download Terraform Plan (NonProd)'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init -backend-config="key=policy-management-nonprod.tfstate"
-          terraform apply -auto-approve -parallelism=30 tfplan-nonprod
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: false
-      displayName: 'apply'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-
-- stage: prod_plan
-  displayName: 'prod_plan'
-  jobs:
-  - job: plan
-    displayName: 'plan and validate'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init -backend-config="key=policy-management-prod.tfstate"
-          terraform validate
-          terraform plan -out=tfplan-prod -var="environment=" -parallelism=30
-          terraform show -json tfplan-prod > tfplan-prod.json
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: true
-      displayName: 'Terraform Plan (Prod)'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
-
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(workingDirectory)/tfplan-prod'
-        artifact: 'terraform-plan-prod'
-        publishLocation: 'pipeline'
-      displayName: 'Publish Terraform Plan (Prod)'
-
-- stage: prod_deploy
-  displayName: 'prod_deploy'
-  dependsOn: prod_plan
-  jobs:
-  - job: apply
-    displayName: 'apply'
-    steps:
-    - checkout: self
-
-    - task: PowerShell@2
-      inputs:
-        targetType: 'inline'
-        script: |
-          Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
-          Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
-        failOnStderr: false
-      displayName: 'Convert JSONC to JSON'
-
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        buildType: 'current'
-        artifactName: 'terraform-plan-prod'
-        targetPath: '$(workingDirectory)'
-      displayName: 'Download Terraform Plan (Prod)'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'mi-platform-mg-wi-nonprod-001'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          terraform init -backend-config="key=policy-management-prod.tfstate"
-          terraform apply -auto-approve -parallelism=30 tfplan-prod
-        workingDirectory: $(workingDirectory)
-        failOnStandardError: false
-      displayName: 'apply'
-      env:
-        ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+# - stage: test_plan
+#   displayName: 'test_plan'
+#   jobs:
+#   - job: plan
+#     displayName: 'plan and validate'
+#     steps:
+#     - checkout: self
+#
+#     - task: PowerShell@2
+#       inputs:
+#         targetType: 'inline'
+#         script: |
+#           Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#         failOnStderr: false
+#       displayName: 'Convert JSONC to JSON'
+#
+#     - task: AzureCLI@2
+#       inputs:
+#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: |
+#           terraform init -backend-config="key=policy-management-test.tfstate"
+#           terraform validate
+#           terraform plan -out=tfplan-test -var="environment=-test" -parallelism=30
+#           terraform show -json tfplan-test > tfplan-test.json
+#         workingDirectory: $(workingDirectory)
+#         failOnStandardError: true
+#       displayName: 'Terraform Plan (Test)'
+#       env:
+#         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#
+#     - task: PublishPipelineArtifact@1
+#       inputs:
+#         targetPath: '$(workingDirectory)/tfplan-test'
+#         artifact: 'terraform-plan-test'
+#         publishLocation: 'pipeline'
+#       displayName: 'Publish Terraform Plan (Test)'
+#
+# - stage: test_deploy
+#   displayName: 'test_deploy'
+#   dependsOn: test_plan
+#   jobs:
+#   - job: apply
+#     displayName: 'apply'
+#     steps:
+#     - checkout: self
+#
+#     - task: PowerShell@2
+#       inputs:
+#         targetType: 'inline'
+#         script: |
+#           Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#         failOnStderr: false
+#       displayName: 'Convert JSONC to JSON'
+#
+#     - task: DownloadPipelineArtifact@2
+#       inputs:
+#         buildType: 'current'
+#         artifactName: 'terraform-plan-test'
+#         targetPath: '$(workingDirectory)'
+#       displayName: 'Download Terraform Plan (Test)'
+#
+#     - task: AzureCLI@2
+#       inputs:
+#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: |
+#           terraform init -backend-config="key=policy-management-test.tfstate"
+#           terraform apply -auto-approve -parallelism=30 tfplan-test
+#         workingDirectory: $(workingDirectory)
+#         failOnStandardError: false
+#       displayName: 'apply'
+#       env:
+#         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#
+# - stage: nonprod_plan
+#   displayName: 'nonprod_plan'
+#   jobs:
+#   - job: plan
+#     displayName: 'plan and validate'
+#     steps:
+#     - checkout: self
+#
+#     - task: PowerShell@2
+#       inputs:
+#         targetType: 'inline'
+#         script: |
+#           Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#         failOnStderr: false
+#       displayName: 'Convert JSONC to JSON'
+#
+#     - task: AzureCLI@2
+#       inputs:
+#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: |
+#           terraform init -backend-config="key=policy-management-nonprod.tfstate"
+#           terraform validate
+#           terraform plan -out=tfplan-nonprod -var="environment=-nonprod" -parallelism=30
+#           terraform show -json tfplan-nonprod > tfplan-nonprod.json
+#         workingDirectory: $(workingDirectory)
+#         failOnStandardError: true
+#       displayName: 'Terraform Plan (NonProd)'
+#       env:
+#         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#
+#     - task: PublishPipelineArtifact@1
+#       inputs:
+#         targetPath: '$(workingDirectory)/tfplan-nonprod'
+#         artifact: 'terraform-plan-nonprod'
+#         publishLocation: 'pipeline'
+#       displayName: 'Publish Terraform Plan (NonProd)'
+#
+# - stage: nonprod_deploy
+#   displayName: 'nonprod_deploy'
+#   dependsOn: nonprod_plan
+#   jobs:
+#   - job: apply
+#     displayName: 'apply'
+#     steps:
+#     - checkout: self
+#
+#     - task: PowerShell@2
+#       inputs:
+#         targetType: 'inline'
+#         script: |
+#           Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#         failOnStderr: false
+#       displayName: 'Convert JSONC to JSON'
+#
+#     - task: DownloadPipelineArtifact@2
+#       inputs:
+#         buildType: 'current'
+#         artifactName: 'terraform-plan-nonprod'
+#         targetPath: '$(workingDirectory)'
+#       displayName: 'Download Terraform Plan (NonProd)'
+#
+#     - task: AzureCLI@2
+#       inputs:
+#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: |
+#           terraform init -backend-config="key=policy-management-nonprod.tfstate"
+#           terraform apply -auto-approve -parallelism=30 tfplan-nonprod
+#         workingDirectory: $(workingDirectory)
+#         failOnStandardError: false
+#       displayName: 'apply'
+#       env:
+#         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#
+# - stage: prod_plan
+#   displayName: 'prod_plan'
+#   jobs:
+#   - job: plan
+#     displayName: 'plan and validate'
+#     steps:
+#     - checkout: self
+#
+#     - task: PowerShell@2
+#       inputs:
+#         targetType: 'inline'
+#         script: |
+#           Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#         failOnStderr: false
+#       displayName: 'Convert JSONC to JSON'
+#
+#     - task: AzureCLI@2
+#       inputs:
+#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: |
+#           terraform init -backend-config="key=policy-management-prod.tfstate"
+#           terraform validate
+#           terraform plan -out=tfplan-prod -var="environment=" -parallelism=30
+#           terraform show -json tfplan-prod > tfplan-prod.json
+#         workingDirectory: $(workingDirectory)
+#         failOnStandardError: true
+#       displayName: 'Terraform Plan (Prod)'
+#       env:
+#         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
+#
+#     - task: PublishPipelineArtifact@1
+#       inputs:
+#         targetPath: '$(workingDirectory)/tfplan-prod'
+#         artifact: 'terraform-plan-prod'
+#         publishLocation: 'pipeline'
+#       displayName: 'Publish Terraform Plan (Prod)'
+#
+# - stage: prod_deploy
+#   displayName: 'prod_deploy'
+#   dependsOn: prod_plan
+#   jobs:
+#   - job: apply
+#     displayName: 'apply'
+#     steps:
+#     - checkout: self
+#
+#     - task: PowerShell@2
+#       inputs:
+#         targetType: 'inline'
+#         script: |
+#           Import-Module "$(System.DefaultWorkingDirectory)/policyManagement/scripts/JsoncConverter/JsoncConverter.psd1"
+#           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/definitions" -Recurse
+#           Convert-JsoncToJson -Path "$(System.DefaultWorkingDirectory)/policyManagement/tf/policies/assignments" -Recurse
+#         failOnStderr: false
+#       displayName: 'Convert JSONC to JSON'
+#
+#     - task: DownloadPipelineArtifact@2
+#       inputs:
+#         buildType: 'current'
+#         artifactName: 'terraform-plan-prod'
+#         targetPath: '$(workingDirectory)'
+#       displayName: 'Download Terraform Plan (Prod)'
+#
+#     - task: AzureCLI@2
+#       inputs:
+#         azureSubscription: 'mi-platform-mg-wi-nonprod-001'
+#         scriptType: 'bash'
+#         scriptLocation: 'inlineScript'
+#         inlineScript: |
+#           terraform init -backend-config="key=policy-management-prod.tfstate"
+#           terraform apply -auto-approve -parallelism=30 tfplan-prod
+#         workingDirectory: $(workingDirectory)
+#         failOnStandardError: false
+#       displayName: 'apply'
+#       env:
+#         ARM_ACCESS_KEY: $(ARM_ACCESS_KEY)
