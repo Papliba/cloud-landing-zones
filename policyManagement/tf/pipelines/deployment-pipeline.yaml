@@ -133,7 +133,7 @@ stages:
         scriptLocation: 'inlineScript' # 'scriptPath'
         # scriptPath: '/pathtoscript'
         inlineScript: |
-          terraform init
+          terraform init -backend-config="key=policy-management-dev.tfstate"
           terraform validate
           terraform plan -out=tfplan -var="environment=-dev" -parallelism=30
           terraform show -json tfplan > tfplan.json
@@ -429,7 +429,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          terraform init
+          terraform init -backend-config="key=policy-management-dev.tfstate"
           terraform apply -auto-approve -parallelism=30 tfplan
         workingDirectory: $(workingDirectory)
         failOnStandardError: false
@@ -460,7 +460,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          terraform init
+          terraform init -backend-config="key=policy-management-test.tfstate"
           terraform validate
           terraform plan -out=tfplan-test -var="environment=-test" -parallelism=30
           terraform show -json tfplan-test > tfplan-test.json
@@ -509,7 +509,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          terraform init
+          terraform init -backend-config="key=policy-management-test.tfstate"
           terraform apply -auto-approve -parallelism=30 tfplan-test
         workingDirectory: $(workingDirectory)
         failOnStandardError: false
@@ -541,7 +541,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          terraform init
+          terraform init -backend-config="key=policy-management-nonprod.tfstate"
           terraform validate
           terraform plan -out=tfplan-nonprod -var="environment=-nonprod" -parallelism=30
           terraform show -json tfplan-nonprod > tfplan-nonprod.json
@@ -590,7 +590,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          terraform init
+          terraform init -backend-config="key=policy-management-nonprod.tfstate"
           terraform apply -auto-approve -parallelism=30 tfplan-nonprod
         workingDirectory: $(workingDirectory)
         failOnStandardError: false
@@ -622,7 +622,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          terraform init
+          terraform init -backend-config="key=policy-management-prod.tfstate"
           terraform validate
           terraform plan -out=tfplan-prod -var="environment=" -parallelism=30
           terraform show -json tfplan-prod > tfplan-prod.json
@@ -671,7 +671,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          terraform init
+          terraform init -backend-config="key=policy-management-prod.tfstate"
           terraform apply -auto-approve -parallelism=30 tfplan-prod
         workingDirectory: $(workingDirectory)
         failOnStandardError: false
