@@ -14,13 +14,10 @@ Terraform modules can be saved in Git repositories, Terraform Cloud, or cloud st
 
 ```hcl
 module "moduleName" {
-  source = "git::https://example.com/repo.git?ref=1.2.0&depth=1"
-  count = 3
+  source   = "git::https://example.com/repo.git?ref=1.2.0&depth=1"
+  for_each = toset(["dev", "staging", "prod"])
+
+  env_name   = each.key
+  depends_on = [module.network, module.database]
 }
 ```
-
-### Parameters
-
-- `ref` - Specifies the Git tag, branch, or commit to use
-- `depth` - Limits clone history (depth=1 fetches only the latest commit)
-- `count` - Creates multiple instances of the module. Use `count.index` (0, 1, 2...) inside the module to differentiate instances
