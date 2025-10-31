@@ -29,3 +29,6 @@ resource "azurerm_policy_definition" "definitions" {
 # Make the pipeline working again with defintions deployment on all mg groups.
 # Work on initiatives deployment.
 # Work on assignments deployment.
+#
+# NOTE:
+# This is a note and we are going to note this as we.

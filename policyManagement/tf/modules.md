@@ -17,6 +17,10 @@ module "moduleName" {
   source   = "git::https://example.com/repo.git?ref=1.2.0&depth=1"
   for_each = toset(["dev", "staging", "prod"])
 
+  providers = {
+    aws = aws.alternate
+  }
+
   env_name   = each.key
   depends_on = [module.network, module.database]
 }
