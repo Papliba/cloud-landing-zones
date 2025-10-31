@@ -47,6 +47,47 @@ Push directly to main for all changes.
 - **Comments**: Add comments for complex policy logic or infrastructure decisions
 - Prefer descriptive variable names over abbreviations
 
+### Markdown Documentation Style
+
+When creating or updating markdown (.md) documentation files, follow this structure:
+
+**Structure Pattern**:
+1. **Main heading** - Title with `#`
+2. **Reference section** - Table with links to official documentation
+3. **Overview section** - Brief description of the topic
+4. **Example sections** - Code examples with HCL/code fences
+5. **Keep it concise** - Simple examples without extensive explanations
+
+**Example Format** (from `modules.md`):
+```markdown
+# Build and Use Modules
+
+## Reference
+
+| Link | Status |
+| ---- | ------ |
+| [Official docs](https://example.com) | |
+
+## Overview
+
+Brief description of what this is about.
+
+## Example: Descriptive Title
+
+```hcl
+module "example" {
+  source = "git::https://example.com/repo.git?ref=1.2.0&depth=1"
+  count  = 3
+}
+```
+```
+
+**Style Notes**:
+- Keep examples simple and practical
+- Use real-world parameter values when possible
+- Minimal explanatory text - let code speak for itself
+- Use proper code fences (```hcl, ```bash, etc.)
+
 ### Common Tasks
 
 **Build/Deploy**: Check `deployment-pipeline.yaml` for pipeline configuration
