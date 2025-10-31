@@ -2,9 +2,7 @@
 
 ## Reference
 
-| Link                                                                                | Status |
-| ----------------------------------------------------------------------------------- | ------ |
-| [Build and use modules](https://developer.hashicorp.com/terraform/language/modules) |        |
+https://developer.hashicorp.com/terraform/language/modules: Inprogress
 
 ## Overview
 
@@ -18,10 +16,18 @@ module "moduleName" {
   for_each = toset(["dev", "staging", "prod"])
 
   providers = {
-    aws = aws.alternate
+    azure = azure.alternate
   }
 
   env_name   = each.key
   depends_on = [module.network, module.database]
 }
 ```
+
+## Move block
+
+## -replace=module.example.aws_instance.example
+
+## Removed block
+
+Continue from here: https://developer.hashicorp.com/terraform/language/modules/develop/structure

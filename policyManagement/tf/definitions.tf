@@ -22,13 +22,3 @@ resource "azurerm_policy_definition" "definitions" {
   policy_rule         = jsonencode(each.value.content.properties.policyRule)
   management_group_id = "/providers/Microsoft.Management/managementGroups/${each.value.management_group_name}${var.environment}"
 }
-
-# FIXME: 
-# Complete the terraform module section from the readme file. 
-# Try to use modules in the current terraform context.
-# Make the pipeline working again with defintions deployment on all mg groups.
-# Work on initiatives deployment.
-# Work on assignments deployment.
-#
-# NOTE:
-# This is a note and we are going to note this as we.
