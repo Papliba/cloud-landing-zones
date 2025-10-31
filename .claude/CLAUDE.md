@@ -3,26 +3,13 @@
 ## Workflow Preferences
 
 ### Git Workflow
-When I ask you to fix an issue or make changes, ALWAYS follow this complete PR workflow:
+When I ask you to fix an issue or make changes, follow this workflow:
 
-1. **Create Feature Branch**: Create a new branch with descriptive name (e.g., `fix/policy-syntax`, `feat/new-mgmt-group`)
-2. **Fix/Implement**: Make the necessary code changes
-3. **Commit Changes**: Stage changes and commit with conventional commit message
-4. **Push to Feature Branch**: Push changes to the feature branch
-5. **Create Pull Request**: Create PR to main branch with descriptive title and summary
-6. **Self-Review**: Review the code in the PR and add comments on:
-   - Potential issues or bugs
-   - Performance improvements
-   - Best practice violations
-   - Security concerns
-   - Code quality improvements
-7. **Iterative Improvement**:
-   - Fix all issues identified in review
-   - Comment on PR explaining what was fixed and how
-   - Repeat review and fix cycle until code is perfect
-8. **Merge PR**: Once all issues are resolved and code is perfect, merge the PR to main
+1. **Fix/Implement**: Make the necessary code changes
+2. **Commit Changes**: Stage changes and commit with conventional commit message
+3. **Push to Main**: Push changes directly to main branch
 
-**NEVER push directly to main**. Always use this branch-based PR workflow.
+Push directly to main for all changes.
 
 ### Commit Message Format
 - Use conventional commits: `fix:`, `feat:`, `docs:`, `refactor:`, `test:`, `chore:`

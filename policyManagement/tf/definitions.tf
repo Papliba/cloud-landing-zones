@@ -1,5 +1,5 @@
 locals {
-  all_policy_files = fileset("${path.module}/policies/definitions/scope", "**/policies/*.json")
+  all_policy_files = fileset("../policies/definitions/scope", "**/policies/*.json")
   policy_definitions = {
     for file_path in local.all_policy_files :
     "${dirname(dirname(file_path))}-${replace(basename(file_path), ".json", "")}" => {
